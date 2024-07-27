@@ -1,0 +1,158 @@
+/* Set Up Fonts */
+@font-face {
+    font-family: Roboto;
+    src: url(fonts/Roboto/Roboto-Regular.ttf);
+}
+
+/* Apply Font */
+body {
+    font-family: Roboto, sans-serif;
+}
+
+/* Prepare Map Page */
+html,
+body {
+    padding: 0;
+    margin: 0;
+}
+
+#map {
+    font-family: inherit;
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Select Container */
+#selContainer {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 11px 0;
+}
+
+/* Select Country */
+#selCountry {
+    width: 200px;
+    margin: 0 auto;
+}
+
+/* Country Information Links */
+#countryname a {
+    text-decoration: none;
+    color: #d2386c;
+}
+
+#countryname a:hover {
+    text-decoration: none;
+    color: #00008b;
+}
+
+#countrycapital a {
+    text-decoration: none;
+    color: #006b54;
+}
+
+#countrycapital a:hover {
+    text-decoration: none;
+    color: #6c244c;
+}
+
+/* Wikipedia (Map) */
+#wikipedia a {
+    text-decoration: none;
+    color: #00A170;
+}
+
+#wikipedia a:hover {
+    text-decoration: none;
+    color: #9a8b4f;
+}
+
+/* City Wikipedia (Map) */
+#citywikipedia a {
+    text-decoration: none;
+    color: #009B77;
+}
+
+#citywikipedia a:hover {
+    text-decoration: none;
+    color: #d2386c;
+}
+
+/* Nearby Wikipedia */
+#nearbywikiurl a {
+    text-decoration: none;
+    color: #ff1493;
+}
+
+#nearbywikiurl a:hover {
+    text-decoration: none;
+    color: #00A170;
+}
+
+/* News */
+#newslink a {
+    text-decoration: none;
+    color: #d2386c;
+}
+
+#newslink a:hover {
+    text-decoration: none;
+    color: #006b54;
+}
+
+
+
+
+/* Preloader */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    overflow: hidden;
+    background: #fff;
+}
+
+#preloader::before {
+    content: "";
+    position: fixed;
+    top: calc(50% - 30px);
+    left: calc(50% - 30px);
+    border: 6px solid #f2f2f2;
+    border-top: 6px solid #56829e;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    -webkit-animation: animate-preloader 1s linear infinite;
+    animation: animate-preloader 1s linear infinite;
+}
+
+@-webkit-keyframes animate-preloader {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes animate-preloader {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Derek Dhammaloka" />
+    <meta name="description" content="Interactive Map with the ability to search country, placenames or attractions" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Gazetteer</title>
+    <link href="favicon.ico" rel="icon">
+    <!-- Load Styles -->
+    <link rel="stylesheet" href="libs/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="libs/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="libs/leaflet/leaflet.min.css">
+    <link rel="stylesheet" href="libs/leaflet/MarkerCluster.min.css">
+    <link rel="stylesheet" href="libs/leaflet/MarkerCluster.Default.min.css">
+    <link rel="stylesheet" href="libs/leaflet/leaflet.extra-markers.min.css">
+    <link rel="stylesheet" href="libs/leaflet/easy-button.min.css">
+    <link rel="stylesheet" href="libs/leaflet/geosearch.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Set Up Country Select -->
+
+    <span id="selContainer">
+        <select id="selCountry" name="selCountry" class="form-select shadow-sm"></select>
+    </span>
+
+    <!-- Set Up Modals -->
+
+    <!-- Modal for Country Information -->
+    <section class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="infoModalLabel">Country Information</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Set Up Table -->
+                    <table class="table table-striped">
+                        <tr>
+                            <td>Name</td>
+                            <td id="countryname"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Capital City</td>
+                            <td id="countrycapital"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Population</td>
+                            <td id="countrypopulation"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Currency</td>
+                            <td id="countrycurrency"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Continent</td>
+                            <td id="countrycontinent"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Drive On</td>
+                            <td id="countrydriveon"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Speed Unit</td>
+                            <td id="countryspeedunit"></td>
+                        </tr>
+
+                        <tr>
+                            <td>What 3 Words</td>
+                            <td id="countrywhatthreewords"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Flag</td>
+                            <td id="countryflag"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Apparent Sunrise</td>
+                            <td id="countryapparentsunrise"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Apparent Sunset</td>
+                            <td id="countryapparentsunset"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Modal for Exchange Information -->
+    <section class="modal fade" id="exchangeModal" tabindex="-1" aria-labelledby="exchangeModalLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exchangeModalLabel">Exchange
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <td>Updated On</td>
+                            <td id="exchangeupdatedon"></td>
+                        </tr>
+
+                        <tr>
+                            <td>From</td>
+                            <td id="exchangefromcurrency"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Amount (from 1 to 1,000,000)</td>
+                            <td><input type="number" id="fromamount" name="fromamount" min="1" max="1000000" value="1"
+                                    step="1" class="form-control" /></td>
+                        </tr>
+
+                        <tr>
+                            <td>Convert to</td>
+                            <td><select id="selCurrency" class="form-select"></select></td>
+                        </tr>
+
+                        <tr>
+                            <td>Result</td>
+                            <td id="exchangeresults"></td>
+                        </tr>
+                    </table>
+
+                    <!-- Set Up Clear Button -->
+                    <div class="d-grid gap-2 d-flex justify-content-center">
+                        <button type="reset" class="btn btn-warning" id="exchangeclear">Clear</button>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Modal for Weather Information -->
+    <section class="modal fade" id="weatherModal" tabindex="-1" aria-labelledby="weatherModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="weatherModalLabel">Weather Information</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Set Up Weather Card -->
+                    <div class="card border border-0">
+                        <div class="card-body">
+                            <!-- Set Up Title and Subtitle with Current Temperature -->
+                            <div class="row">
+                                <h5 class="card-title" id="weathercityname"></h5>
+                                <h6 class="card-subtitle mb-2 text-body-secondary" id="weathertzid"></h6>
+                                <p>Last Updated <span id="lastupdated"></span></p>
+                                <p class="display-4" id="currenttemp"></p>
+                            </div>
+
+                            <!-- Display Current Weather Conditions -->
+                            <div class="row">
+                                <div class="col m-3">
+
+                                    <p id="currentconditions"></p>
+                                </div>
+
+                                <div class="col">
+                                    <img id="currenticon" class="img-fluid mt-0" src="#" alt="" title="">
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Display Weather Information Forecasts -->
+                            <div class="row">
+
+                                <div class="col border border-black m-1">
+                                    <p class="fw-bold mt-1" id="day0date"></p>
+                                    <div class="row">
+
+                                        <div class="col text-center">
+                                            <img id="day0icon" class="img-fluid mt-0" src="#" alt="" title="">
+                                        </div>
+
+                                        <div class="col text-center">
+                                            <p class="fw-bold fs-6 mb-0" id="day0maxtemp"></p>
+                                            <p class="fs-6 mt-0 text-secondary" id="day0mintemp"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col border border-black m-1">
+                                    <p class="fw-bold mt-1" id="day1date"></p>
+                                    <div class="row">
+
+                                        <div class="col text-center">
+                                            <img id="day1icon" class="img-fluid mt-0" src="#" alt="" title="">
+                                        </div>
+
+                                        <div class="col text-center">
+                                            <p class="fw-bold fs-6 mb-0" id="day1maxtemp"></p>
+                                            <p class="fs-6 mt-0 text-secondary" id="day1mintemp"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col border border-black m-1">
+                                    <p class="fw-bold mt-1" id="day2date"></p>
+                                    <div class="row">
+
+                                        <div class="col text-center">
+                                            <img id="day2icon" class="img-fluid mt-0" src="#" alt="" title="">
+                                        </div>
+
+                                        <div class="col text-center">
+                                            <p class="fw-bold fs-6 mb-0" id="day2maxtemp"></p>
+                                            <p class="fs-6 mt-0 text-secondary" id="day2mintemp"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <!-- Set Up Any Weather Error Messages -->
+                    <div id="weathererror"></div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <p class="fs-6">Powered by <a href="https://www.weatherapi.com/" class="text-decoration-none"
+                            target="_blank" title="Free Weather API">WeatherAPI.com</a></p>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Modal for Nearby Points of Interest -->
+    <section class="modal fade" id="poiModal" tabindex="-1" aria-labelledby="poiModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="poiModalLabel">Nearby Points of Interest</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Set Up Table with Caption for Nearby Points of Interest -->
+                    <table class="table caption-top" id="nearbypoiresults">
+                    </table>
+
+                    <!-- Set Up Any No Data Messages -->
+                    <div id="nearbypoinodata"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Modal for Nearby Wikipedia -->
+    <section class="modal fade" id="wikiModal" tabindex="-1" aria-labelledby="wikiModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="wikiModalLabel">Nearby Wikipedia</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Set Up Table with Caption for Nearby Wikipedia -->
+                    <table class="table caption-top" id="nearbywikiresults">
+                    </table>
+
+                    <!-- Set Up Any No Data Messages -->
+                    <div id="nearbywikinodata"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Modal for Find Nearby Placename -->
+    <section class="modal fade" id="placenameModal" tabindex="-1" aria-labelledby="placenameModalLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="placenameModalLabel">Nearby Placename
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <td>Place Name</td>
+                            <td id="placename"></td>
+                        </tr>
+                        <tr class="placecountyrow">
+                            <td>County</td>
+                            <td id="placecounty"></td>
+                        </tr>
+                        <tr>
+                            <td>State</td>
+                            <td id="placestate"></td>
+                        </tr>
+                        <tr>
+                            <td>Country</td>
+                            <td id="placecountry"></td>
+                        </tr>
+                        <tr>
+                            <td>Formatted</td>
+                            <td id="placeformatted"></td>
+                        </tr>
+                        <tr>
+                            <td>What 3 Words</td>
+                            <td id="placewhatthreewords"></td>
+                        </tr>
+                        <tr>
+                            <td>Apparent Sunrise</td>
+                            <td id="placeapparentsunrise"></td>
+                        </tr>
+                        <tr>
+                            <td>Apparent Sunset</td>
+                            <td id="placeapparentsunset"></td>
+                        </tr>
+
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Modal for Find Nearby Postal Codes -->
+    <section class="modal fade" id="postalModal" tabindex="-1" aria-labelledby="postalModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="postalModalLabel">Nearby Postal Codes
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table caption-top" id="nearbypcresults">
+                    </table>
+
+                    <!-- Set Up Any No Data Messages -->
+                    <div id="nearbypcnodata"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Modal for News Information -->
+    <section class="modal fade" id="newsModal" tabindex="-1" aria-labelledby="newsModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="newsModalLabel">News Information</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table" id="newsresults">
+                    </table>
+
+                    <!-- Set Up Any No Data Messages -->
+                    <div id="newsnodata"></div>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Display Map -->
+    <div id="map"></div>
+
+    <!-- Set Up Preloader-->
+    <div id="preloader"></div>
+
+    <!-- Load Scripts -->
+    <script src="libs/jquery/jquery-3.6.4.min.js"></script>
+    <script src="libs/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="libs/leaflet/leaflet.min.js"></script>
+    <script src="libs/leaflet/leaflet.markercluster.min.js"></script>
+    <script src="libs/leaflet/leaflet.extra-markers.min.js"></script>
+    <script src="libs/leaflet/easy-button.min.js"></script>
+    <script src="libs/leaflet/bundle.min.js"></script>
+    <script src="js/script.js"></script>
+</body>
+
+
+
+</html>
