@@ -1,12 +1,7 @@
-/* Set Up Fonts */
-@font-face {
-    font-family: Roboto;
-    src: url(fonts/Roboto/Roboto-Regular.ttf);
-}
 
 /* Apply Font */
 body {
-    font-family: Roboto, sans-serif;
+    font-family: sans-serif;
 }
 
 /* Prepare Map Page */

@@ -7,6 +7,11 @@ $(window).on('load', function () {
 
 });
 
+$(document).ready(function () {
+    // Show the modal when the document is fully loaded
+    $('#projectInfoModal').modal('show');
+});
+
 // Functions
 
 /*
@@ -92,28 +97,26 @@ const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/servi
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
 });
 
-const toner = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}', {
-    attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    subdomains: 'abcd',
-    minZoom: 0,
-    maxZoom: 20,
-    ext: 'png'
-});
-
-const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20
+const cartoDarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; CARTO'
 });
 
 const basemaps = {
-    "Streets": streets,
     "Satellite": satellite,
-    "Toner": toner,
-    "Positron": positron
+    "Streets": streets,
+    "Dark": cartoDarkMatter
+
 };
 
-let map = L.map('map', { layers: [streets] }).fitWorld();
+let map = L.map('map', {
+    layers: [satellite], 
+    zoomControl: false // Disable default zoom control
+}).fitWorld();
+
+// Add zoom control with new position
+L.control.zoom({
+    position: 'bottomright' // This moves the zoom control to the bottom right
+}).addTo(map);
 
 // Add Search Control
 
@@ -165,7 +168,6 @@ $.ajax({
 
 // GeoJSON and Marker Cluster Groups
 let border = new L.GeoJSON();
-const earthquakeMarkers = L.markerClusterGroup();
 const wikipediaArticleMarkers = L.markerClusterGroup();
 const weatherObservationMarkers = L.markerClusterGroup();
 const cityMarkers = L.markerClusterGroup();
@@ -173,7 +175,6 @@ const cityMarkers = L.markerClusterGroup();
 // Set Up Overlays
 
 const overlays = {
-    "Earthquakes": earthquakeMarkers,
     "WikipediaArticles": wikipediaArticleMarkers,
     "WeatherObservations": weatherObservationMarkers,
     "Cities": cityMarkers
@@ -198,16 +199,16 @@ $('#selCountry').on('change', function () {
 
             border.clearLayers();
 
-            earthquakeMarkers.clearLayers();
+
             wikipediaArticleMarkers.clearLayers();
             weatherObservationMarkers.clearLayers();
             cityMarkers.clearLayers();
 
             // Styles to Apply for Country
             let myStyle = {
-                "color": "#0000FF",
+                "color": "#FF0000",
                 "weight": 1,
-                "fillColor": "#95DEE3"
+                "fillColor": "#F28B82"
             };
 
             let myData = result;
@@ -240,70 +241,8 @@ $('#selCountry').on('change', function () {
                 south = result['data'][0]['south'];
                 east = result['data'][0]['east'];
                 west = result['data'][0]['west'];
-                // Get earthquakes data
-                $.ajax({
-                    url: "php/getEarthquakes.php",
-                    type: 'POST',
-                    dataType: 'JSON',
-                    data: {
-                        north: north,
-                        south: south,
-                        east: east,
-                        west: west
-                    },
-                    success: function (result) {
 
-                        if (result.status.name == "ok") {
-                            const earthquakeIcon = L.ExtraMarkers.icon({
-                                prefix: 'fa',
-                                icon: 'fa-house-crack',
-                                iconColor: 'white',
-                                svg: true,
-                                markerColor: '#5A3E36',
-                                shape: 'square'
-                            });
-
-                            let earthquakeCoords = [];
-
-
-                            for (let i = 0; i < result['data'].length; i++) {
-                                let earthquakeText = ``;
-                                let eqDate = new Date(result['data'][i]['datetime']);
-                                let eqDepth = result['data'][i]['depth'];
-                                let eqLatitude = result['data'][i]['lat'];
-                                let eqLongitude = result['data'][i]['lng'];
-                                let eqId = result['data'][i]['eqid'];
-                                let eqMagnitude = result['data'][i]['magnitude'];
-                                // Build the text for each earthquake
-                                earthquakeText += `Date and Time - ${eqDate.toDateString()} - ${eqDate.toTimeString().slice(0, 5)} <br/>`;
-                                earthquakeText += `Depth - ${eqDepth} <br/>`;
-                                earthquakeText += `ID - ${eqId} <br/>`;
-                                earthquakeText += `Magnitude - ${eqMagnitude}`;
-
-                                // Add latitude, longitude, id and text to earthquakeCoords array
-                                earthquakeCoords.push([eqLatitude, eqLongitude, eqId, earthquakeText]);
-
-                            }
-
-                            // Plot the earthquakes
-
-                            for (let i = 0; i < earthquakeCoords.length; i++) {
-                                let arr = earthquakeCoords[i];
-                                let title = arr[2];
-                                let description = arr[3];
-                                let marker = L.marker(new L.LatLng(arr[0], arr[1]), { icon: earthquakeIcon, title: title });
-                                marker.bindPopup(description);
-                                earthquakeMarkers.addLayer(marker);
-                            }
-
-                            map.addLayer(earthquakeMarkers);
-
-                        }
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        // Your error code
-                    }
-                });
+                
 
                 // Get Wikipedia articles
                 $.ajax({
@@ -515,7 +454,7 @@ let infoBtn = L.easyButton({
     states: [{
         stateName: 'get-country-information',
         icon: 'fa-info',
-        title: 'Get Country Information',
+        title: 'Country Information',
         onClick: function (btn, map) {
             // Clear entries
             $('#countryname').html(``);
@@ -630,7 +569,7 @@ let infoBtn = L.easyButton({
 });
 
 // Apply Styling to Information Button
-infoBtn.button.style.backgroundColor = '#9BB7D4';
+infoBtn.button.style.backgroundColor = '#800020';
 
 // Add Information Button to Map
 infoBtn.addTo(map);
@@ -639,7 +578,7 @@ let exchangeBtn = L.easyButton({
     states: [{
         stateName: 'get-exchange-information',
         icon: 'fa-dollar',
-        title: 'Get Exchange Information',
+        title: 'Exchange Information',
         onClick: function (btn, map) {
             // Clear entries
             $('#exchangeupdatedon').html(``);
@@ -757,7 +696,7 @@ let exchangeBtn = L.easyButton({
 });
 
 // Apply Styling to Exchange Button
-exchangeBtn.button.style.backgroundColor = '#A0DAA9';
+exchangeBtn.button.style.backgroundColor = '#228B22';
 
 // Add Exchange Button to Map
 exchangeBtn.addTo(map);
@@ -765,8 +704,8 @@ exchangeBtn.addTo(map);
 let weatherBtn = L.easyButton({
     states: [{
         stateName: 'get-weather-information',
-        icon: 'fa-umbrella',
-        title: 'Get Weather Information',
+        icon: 'fa-solid fa-cloud',
+        title: 'Weather Information',
         onClick: function (btn, map) {
             // Clear entries
             $('#weathercityname').html(``);
@@ -966,167 +905,16 @@ let weatherBtn = L.easyButton({
 });
 
 // Apply Styling to Weather Button
-weatherBtn.button.style.backgroundColor = '#E0B589';
+weatherBtn.button.style.backgroundColor = '#1434A4';
 
 // Add Weather Button to Map
 weatherBtn.addTo(map);
-
-let poiBtn = L.easyButton({
-    states: [{
-        stateName: 'find-nearby-points-of-interest',
-        icon: 'fa-landmark',
-        title: 'Get Nearby Points of Interest Information',
-        onClick: function (btn, map) {
-            // Clear entries
-            $('#nearbypoiresults').html(``);
-            $('#nearbypoinodata').html(``);
-            // Hide Nearby Points of Interest No Data Message
-            $('#nearbypoinodata').hide();
-            const center = map.getCenter();
-            const latitude = center["lat"];
-            const longitude = center["lng"];
-            // Get Updated Country Code based on Latitude and Longitude
-            updateCountryCodeAndCountryName(latitude, longitude);
-
-            // Fill entries
-            $.ajax({
-                url: "php/findNearbyPOIsOSM.php",
-                type: 'POST',
-                dataType: 'JSON',
-                data: {
-                    lat: latitude,
-                    lng: longitude
-                },
-                success: function (result) {
-
-                    if (result.status.name == "ok") {
-
-                        try {
-                            const counts = result.data.length;
-                            // Build the Table
-                            if (counts != undefined) $('#nearbypoiresults').append(`<caption>${counts} Nearby Points of Interest</caption>`);
-                            for (let idx = 0; idx < counts; idx++) {
-                                let name = result['data'][idx]['name'];
-                                let poiTypeClass = result['data'][idx]['typeClass'];
-                                let poiTypeName = result['data'][idx]['typeName'];
-
-                                // If name is not empty show the name
-                                if (name.length != 0) {
-                                    $('#nearbypoiresults').append(`<tr>`);
-                                    $('#nearbypoiresults').append(`<td>Name</td>`)
-                                    $('#nearbypoiresults').append(`<td>${name}</td>`);
-                                    $('#nearbypoiresults').append(`</tr>`);
-                                }
-
-                                $('#nearbypoiresults').append(`<tr>`);
-                                $('#nearbypoiresults').append(`<td>Type Class</td>`);
-                                $('#nearbypoiresults').append(`<td>${poiTypeClass}</td>`);
-                                $('#nearbypoiresults').append(`</tr>`);
-
-                                $('#nearbypoiresults').append(`<tr>`);
-                                $('#nearbypoiresults').append(`<td>Type Name</td>`);
-                                $('#nearbypoiresults').append(`<td>${poiTypeName}<p></p></td>`);
-                                $('#nearbypoiresults').append(`</tr>`);
-                            }
-
-                        } catch (error) {
-                            // Show the No Nearby Points of Interest Message
-                            $('#nearbypoinodata').show();
-                            $('#nearbypoinodata').html(`No Nearby Points of Interest`);
-                        }
-
-                    }
-                },
-
-                error: function (jqXHR, textStatus, errorThrown) {
-                    // Your error code
-
-                }
-            });
-            $('#poiModal').modal('show');
-        }
-    }]
-});
-
-// Apply Styling to Points of Interest Button
-poiBtn.button.style.backgroundColor = '#E8B5CE';
-
-// Add Points of Interest Button to Map
-poiBtn.addTo(map);
-
-let wikiBtn = L.easyButton({
-    states: [{
-        stateName: 'find-nearby-wikipedia',
-        icon: 'fa-database',
-        title: 'Get Nearby Wikipedia Information',
-        onClick: function (btn, map) {
-            // Clear entries
-            $('#nearbywikiresults').html(``);
-            $('#nearbywikinodata').html(``);
-            // Hide Nearby Wikipedia No Data Message
-            $('#nearbywikinodata').hide();
-            const center = map.getCenter();
-            const latitude = center["lat"];
-            const longitude = center["lng"];
-            // Get Updated Country Code based on Latitude and Longitude
-            updateCountryCodeAndCountryName(latitude, longitude);
-
-            // Fill entries
-            $.ajax({
-                url: "php/findNearbyWikipedia.php",
-                type: 'POST',
-                dataType: 'JSON',
-                data: {
-                    lat: latitude,
-                    lng: longitude
-                },
-                success: function (result) {
-
-                    if (result.status.name == "ok") {
-                        const counts = result.data.length;
-                        // If there are no counts
-                        if (counts == 0) {
-
-                            // Show the No Nearby Wikipedia Articles Message
-                            $('#nearbywikinodata').show();
-                            $('#nearbywikinodata').html(`No Nearby Wikipedia Articles`);
-
-                        } else {
-                            // Build the Table
-                            $('#nearbywikiresults').append(`<caption>${counts} Nearby Wikipedia Articles</caption>`);
-                            for (let idx = 0; idx < counts; idx++) {
-                                let title = result['data'][idx]['title'];
-                                let summary = result['data'][idx]['summary'];
-                                let url = result['data'][idx]['wikipediaUrl'];
-                                $('#nearbywikiresults').append(`<tr><td>${title}</td></tr>`);
-                                $('#nearbywikiresults').append(`<tr><td>${summary}</td></tr>`);
-                                $('#nearbywikiresults').append(`<tr><td class="text-center" id="nearbywikiurl"><a href="https://${url}" target="_blank" title="View Wikipedia Article for ${title}">View Wikipedia Article</a><p></p></td></tr>`);
-                            }
-                        }
-
-                    }
-                },
-
-                error: function (jqXHR, textStatus, errorThrown) {
-                    // Your error code
-                }
-            });
-            $('#wikiModal').modal('show');
-        }
-    }]
-});
-
-// Apply Styling to Wikipedia Button
-wikiBtn.button.style.backgroundColor = '#FAE03C';
-
-// Add Wikipedia Button to Map
-wikiBtn.addTo(map);
 
 let nearbyPlacenameBtn = L.easyButton({
     states: [{
         stateName: 'find-nearby-placename',
         icon: 'fa-location-crosshairs',
-        title: 'Find Nearby Placename',
+        title: 'Nearby Placename',
         onClick: function (btn, map) {
             // Clear entries
             $('#placename').html(``);
@@ -1220,189 +1008,4 @@ nearbyPlacenameBtn.button.style.backgroundColor = '#BFD641';
 // Add Nearby Placename Button to Map
 nearbyPlacenameBtn.addTo(map);
 
-let postalCodesBtn = L.easyButton({
-    states: [{
-        stateName: 'find-nearby-postal-codes',
-        icon: 'fa-address-card',
-        title: 'Find Nearby Postal Codes',
-        onClick: function (btn, map) {
-            // Clear entries
-            $('#nearbypcresults').html(``);
-            $('#nearbypcnodata').html(``);
-            // Hide Nearby Postal Codes No Data Message
-            $('#nearbypcnodata').hide();
-            const center = map.getCenter();
-            const latitude = center["lat"];
-            const longitude = center["lng"];
-            // Get Updated Country Code based on Latitude and Longitude
-            updateCountryCodeAndCountryName(latitude, longitude);
 
-            // Fill entries
-            $.ajax({
-                url: "php/findNearbyPostalCodes.php",
-                type: 'POST',
-                dataType: 'JSON',
-                data: {
-                    lat: latitude,
-                    lng: longitude
-                },
-                success: function (result) {
-                    if (result.status.name == "ok") {
-                        const counts = result.data.length;
-                        // If there are no counts
-                        if (counts == 0) {
-
-                            // Show the No Nearby Postal Codes Message
-                            $('#nearbypcnodata').show();
-                            $('#nearbypcnodata').html(`No Nearby Postal Codes`);
-
-                        } else {
-                            // Build the Table
-                            $('#nearbypcresults').append(`<caption>${counts} Nearby Postal Codes</caption>`);
-                            for (let idx = 0; idx < counts; idx++) {
-                                let placeName = result['data'][idx]['placeName'];
-                                let adminName1 = result['data'][idx]['adminName1'];
-                                let adminName2 = result['data'][idx]['adminName2'];
-                                let adminName3 = result['data'][idx]['adminName3'];
-                                let countryCode = result['data'][idx]['countryCode'];
-                                let postalCode = result['data'][idx]['postalCode'];
-
-                                $('#nearbypcresults').append(`<tr>`);
-                                $('#nearbypcresults').append(`<td>Place Name</td>`);
-                                $('#nearbypcresults').append(`<td>${placeName}</td>`);
-                                $('#nearbypcresults').append(`</tr>`);
-
-                                $('#nearbypcresults').append(`<tr>`);
-                                $('#nearbypcresults').append(`<td>State</td>`);
-                                $('#nearbypcresults').append(`<td>${adminName1}</td>`);
-                                $('#nearbypcresults').append(`</tr>`);
-
-                                // Check if the second admin name is not undefined
-                                if (adminName2 !== undefined) {
-                                    $('#nearbypcresults').append(`<tr>`);
-                                    $('#nearbypcresults').append(`<td>County/Province</td>`);
-                                    $('#nearbypcresults').append(`<td>${adminName2}</td>`)
-                                    $('#nearbypcresults').append(`</tr>`);
-                                }
-
-
-                                // Check if the third admin name is not undefined
-                                if (adminName3 !== undefined) {
-                                    $('#nearbypcresults').append(`<tr>`);
-                                    $('#nearbypcresults').append(`<td>District</td>`);
-                                    $('#nearbypcresults').append(`<td>${adminName3}</td>`);
-                                    $('#nearbypcresults').append(`</tr>`);
-                                }
-
-                                $('#nearbypcresults').append(`<tr>`);
-                                $('#nearbypcresults').append(`<td>Country Code</td>`);
-                                $('#nearbypcresults').append(`<td>${countryCode}</td>`);
-                                $('#nearbypcresults').append(`</tr>`);
-
-                                $('#nearbypcresults').append(`<tr>`);
-                                $('#nearbypcresults').append(`<td>Postal Code</td>`);
-                                $('#nearbypcresults').append(`<td>${postalCode}<p></p></td>`);
-                                $('#nearbypcresults').append(`</tr>`);
-                            }
-                        }
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    // Your error code
-                }
-            });
-
-            $('#postalModal').modal('show');
-        }
-    }]
-});
-
-// Apply Styling to Postal Button
-postalCodesBtn.button.style.backgroundColor = '#55B4B0';
-
-// Add Postal Button to Map
-postalCodesBtn.addTo(map);
-
-let newsBtn = L.easyButton({
-    states: [{
-        stateName: 'get-news',
-        icon: 'fa-newspaper',
-        title: 'Get News',
-        onClick: function (btn, map) {
-            // Clear entries
-            $('#newsresults').html(``);
-            $('#newsnodata').html(``);
-            // Hide News No Data Message
-            $('#newsnodata').hide();
-            const center = map.getCenter();
-            const latitude = center["lat"];
-            const longitude = center["lng"];
-            // Get Updated Country Code based on Latitude and Longitude
-            updateCountryCodeAndCountryName(latitude, longitude);
-
-            // Fill entries
-            $.ajax({
-                url: "php/newsApi.php",
-                type: 'POST',
-                dataType: 'JSON',
-                data: {
-                    country: $('#selCountry').val()
-                },
-                success: function (result) {
-
-                    if (result.status.name == "ok") {
-
-                        // If there are no counts
-                        if (result['data']['totalResults'] == 0 || result['data']['totalResults'] == undefined) {
-                            $('#newsnodata').show();
-                            $('#newsnodata').html(`No news articles for selected country`);
-                        } else {
-                            // Build the Table
-
-                            // Display the First 10 News Results
-                            for (let idx = 0; idx < 10; idx++) {
-                                let title = result['data']['results'][idx]['title'];
-                                let imageUrl = result['data']['results'][idx]['image_url'] !== null ? result['data']['results'][idx]['image_url'] : "breakingnews.jpg";
-                              	// Check for empty image URL after removing whitespace or image URLs not ending with .jpg 
-                                if (imageUrl.trim().length == 0 || !imageUrl.endsWith(".jpg")) imageUrl = "breakingnews.jpg";
-                                let imageAlt = imageUrl !== "breakingnews.jpg" ? title : "Breaking News";
-                                let sourceID = result['data']['results'][idx]['source_id'];
-                                let link = result['data']['results'][idx]['link'];
-
-                                $('#newsresults').append(`<tr>`);
-                                $('#newsresults').append(`<td rowspan="2" class="w-50"><img class="img-fluid rounded" src="${imageUrl}" alt="${imageAlt}" title="${imageAlt}"></td>`);
-
-                                $('#newsresults').append(`<td id="newslink"><a href="${link}" target="_blank" title="View News Article">${title}</a></td>`);
-                                $('#newsresults').append(`</tr>`);
-
-                                $('#newsresults').append(`<tr>`);
-                                $('#newsresults').append(`<td class="align-bottom pb-0">`);
-                                $('#newsresults').append(`<p class="fs-6 mb-1">${sourceID}</p>`);
-                                $('#newsresults').append(`</td></tr>`);
-
-                                $('#newsresults').append(`<tr><td colspan="2"><p class="border-bottom border-dark"></p></td></tr>`);
-
-                            }
-                        }
-
-                    } else {
-                        $('#newsnodata').show();
-                        $('#newsnodata').html(`Error retrieving news articles`);
-                    }
-                },
-
-                error: function (jqXHR, textStatus, errorThrown) {
-                    $('#newsnodata').show();
-                    $('#newsnodata').html(`Error retrieving news articles`);
-                }
-            });
-            $('#newsModal').modal('show');
-        }
-    }]
-});
-
-// Apply Styling to News Button
-newsBtn.button.style.backgroundColor = '#C9A0DC';
-
-// Add News Button to Map
-newsBtn.addTo(map);

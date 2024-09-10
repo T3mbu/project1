@@ -5,12 +5,12 @@
 
     $executionStartTime = microtime(true);
 
-    // Get latitude and longitude from the request
-    $latitude = isset($_REQUEST['lat']) ? $_REQUEST['lat'] : null;
-    $longitude = isset($_REQUEST['lng']) ? $_REQUEST['lng'] : null;
+    // Get latitude and longitude from request
+    $lat = isset($_REQUEST['lat']) ? $_REQUEST['lat'] : null;
+    $lng = isset($_REQUEST['lng']) ? $_REQUEST['lng'] : null;
 
-    // Ensure both lat and lng are provided
-    if ($latitude === null || $longitude === null) {
+    // Ensure both latitude and longitude are provided
+    if ($lat === null || $lng === null) {
         $output['status']['code'] = "400";
         $output['status']['name'] = "error";
         $output['status']['description'] = "Latitude and Longitude are required.";
@@ -18,9 +18,8 @@
         exit;
     }
 
-    // Geonames API URL
-    $username = 'tembuu'; // Your Geonames username
-    $url = "http://api.geonames.org/findNearbyPlaceNameJSON?lat={$latitude}&lng={$longitude}&username={$username}&style=full";
+    // GeoNames API URL with the provided latitude, longitude, and username
+    $url = 'http://api.geonames.org/findNearbyPostalCodesJSON?lat=' . $lat . '&lng=' . $lng . '&username=tembuu';
 
     // Initialize cURL session
     $ch = curl_init();
@@ -40,14 +39,14 @@
     $output['status']['name'] = "ok";
     $output['status']['returnedIn'] = intval((microtime(true) - $executionStartTime) * 1000) . " ms";
 
-    // Check if the response contains place names data
-    if (isset($decode['geonames']) && count($decode['geonames']) > 0) {
-        $output['data'] = $decode['geonames'];
+    // Check if the response contains postal code data
+    if (isset($decode['postalCodes']) && count($decode['postalCodes']) > 0) {
+        $output['data'] = $decode['postalCodes'];
         $output['status']['description'] = "success";
     } else {
         // Handle no data found
         $output['data'] = [];
-        $output['status']['description'] = "No nearby place names found.";
+        $output['status']['description'] = "No nearby postal codes found.";
     }
 
     // Set response header to JSON and output the result

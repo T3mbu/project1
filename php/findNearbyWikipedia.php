@@ -18,9 +18,9 @@
         exit;
     }
 
-    // Geonames API URL
-    $username = 'tembuu'; // Your Geonames username
-    $url = "http://api.geonames.org/findNearbyPlaceNameJSON?lat={$latitude}&lng={$longitude}&username={$username}&style=full";
+    // Geonames Wikipedia API URL
+    $username = 'tembuu'; // Geonames username
+    $url = "http://api.geonames.org/findNearbyWikipediaJSON?formatted=true&lat={$latitude}&lng={$longitude}&username={$username}&style=full";
 
     // Initialize cURL session
     $ch = curl_init();
@@ -40,14 +40,14 @@
     $output['status']['name'] = "ok";
     $output['status']['returnedIn'] = intval((microtime(true) - $executionStartTime) * 1000) . " ms";
 
-    // Check if the response contains place names data
+    // Check if the response contains Wikipedia data
     if (isset($decode['geonames']) && count($decode['geonames']) > 0) {
         $output['data'] = $decode['geonames'];
         $output['status']['description'] = "success";
     } else {
         // Handle no data found
         $output['data'] = [];
-        $output['status']['description'] = "No nearby place names found.";
+        $output['status']['description'] = "No Wikipedia articles found nearby.";
     }
 
     // Set response header to JSON and output the result

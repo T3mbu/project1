@@ -5,22 +5,21 @@
 
     $executionStartTime = microtime(true);
 
-    // Get latitude and longitude from the request
-    $latitude = isset($_REQUEST['lat']) ? $_REQUEST['lat'] : null;
-    $longitude = isset($_REQUEST['lng']) ? $_REQUEST['lng'] : null;
+    // Get the country name or country code from the request
+    $country = isset($_REQUEST['country']) ? $_REQUEST['country'] : null;
 
-    // Ensure both lat and lng are provided
-    if ($latitude === null || $longitude === null) {
+    // Ensure country name or code is provided
+    if ($country === null) {
         $output['status']['code'] = "400";
         $output['status']['name'] = "error";
-        $output['status']['description'] = "Latitude and Longitude are required.";
+        $output['status']['description'] = "Country name or code is required.";
         echo json_encode($output);
         exit;
     }
 
-    // Geonames API URL
-    $username = 'tembuu'; // Your Geonames username
-    $url = "http://api.geonames.org/findNearbyPlaceNameJSON?lat={$latitude}&lng={$longitude}&username={$username}&style=full";
+    // OpenCage API URL with your API key
+    $apiKey = 'c07440e9e0ee49158725329a08a4928a'; // Your OpenCage API key
+    $url = 'https://api.opencagedata.com/geocode/v1/json?q=' . urlencode($country) . '&key=' . $apiKey;
 
     // Initialize cURL session
     $ch = curl_init();
@@ -40,14 +39,14 @@
     $output['status']['name'] = "ok";
     $output['status']['returnedIn'] = intval((microtime(true) - $executionStartTime) * 1000) . " ms";
 
-    // Check if the response contains place names data
-    if (isset($decode['geonames']) && count($decode['geonames']) > 0) {
-        $output['data'] = $decode['geonames'];
+    // Ensure 'results' exists and contains data
+    if (isset($decode['results']) && count($decode['results']) > 0) {
+        $output['data']['results'] = $decode['results'];
         $output['status']['description'] = "success";
     } else {
         // Handle no data found
-        $output['data'] = [];
-        $output['status']['description'] = "No nearby place names found.";
+        $output['data']['results'] = [];
+        $output['status']['description'] = "No data found for the provided country.";
     }
 
     // Set response header to JSON and output the result

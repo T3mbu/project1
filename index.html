@@ -5,11 +5,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="author" content="Derek Dhammaloka" />
+    <meta name="author" content="Usman Ali" />
     <meta name="description" content="Interactive Map with the ability to search country, placenames or attractions" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Gazetteer</title>
-    <link href="favicon.ico" rel="icon">
+    <link href="favicon.png" rel="icon">
     <!-- Load Styles -->
     <link rel="stylesheet" href="libs/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="libs/fontawesome/css/all.min.css">
@@ -269,57 +269,6 @@
 
     </section>
 
-    <!-- Modal for Nearby Points of Interest -->
-    <section class="modal fade" id="poiModal" tabindex="-1" aria-labelledby="poiModalLabel" aria-hidden="true">
-
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="poiModalLabel">Nearby Points of Interest</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Set Up Table with Caption for Nearby Points of Interest -->
-                    <table class="table caption-top" id="nearbypoiresults">
-                    </table>
-
-                    <!-- Set Up Any No Data Messages -->
-                    <div id="nearbypoinodata"></div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-
-    </section>
-
-    <!-- Modal for Nearby Wikipedia -->
-    <section class="modal fade" id="wikiModal" tabindex="-1" aria-labelledby="wikiModalLabel" aria-hidden="true">
-
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="wikiModalLabel">Nearby Wikipedia</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Set Up Table with Caption for Nearby Wikipedia -->
-                    <table class="table caption-top" id="nearbywikiresults">
-                    </table>
-
-                    <!-- Set Up Any No Data Messages -->
-                    <div id="nearbywikinodata"></div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-
-    </section>
 
     <!-- Modal for Find Nearby Placename -->
     <section class="modal fade" id="placenameModal" tabindex="-1" aria-labelledby="placenameModalLabel"
@@ -378,58 +327,8 @@
 
     </section>
 
-    <!-- Modal for Find Nearby Postal Codes -->
-    <section class="modal fade" id="postalModal" tabindex="-1" aria-labelledby="postalModalLabel" aria-hidden="true">
 
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="postalModalLabel">Nearby Postal Codes
-                    </h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table class="table caption-top" id="nearbypcresults">
-                    </table>
-
-                    <!-- Set Up Any No Data Messages -->
-                    <div id="nearbypcnodata"></div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-
-    </section>
-
-    <!-- Modal for News Information -->
-    <section class="modal fade" id="newsModal" tabindex="-1" aria-labelledby="newsModalLabel" aria-hidden="true">
-
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="newsModalLabel">News Information</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table class="table" id="newsresults">
-                    </table>
-
-                    <!-- Set Up Any No Data Messages -->
-                    <div id="newsnodata"></div>
-                </div>
-
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-
-    </section>
-
+  
     <!-- Display Map -->
     <div id="map"></div>
 
@@ -445,6 +344,26 @@
     <script src="libs/leaflet/easy-button.min.js"></script>
     <script src="libs/leaflet/bundle.min.js"></script>
     <script src="js/script.js"></script>
+
+    <!-- Project Info Modal -->
+<div class="modal fade" id="projectInfoModal" tabindex="-1" aria-labelledby="projectInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="projectInfoModalLabel">Gazetteer Project Overview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Welcome to the Gazetteer Project. This interactive map allows you to explore various countries and view their details, including country information, currency information, cities located in the country, and more. Use the buttons on the left to interact with different map features.</p>
+          <p>Select a country from the dropdown menu or click on the map to start discovering more!</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Get Started</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 </body>
 
 

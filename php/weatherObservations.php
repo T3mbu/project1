@@ -5,22 +5,23 @@
 
     $executionStartTime = microtime(true);
 
-    // Get latitude and longitude from the request
-    $latitude = isset($_REQUEST['lat']) ? $_REQUEST['lat'] : null;
-    $longitude = isset($_REQUEST['lng']) ? $_REQUEST['lng'] : null;
+    // Get the bounding box coordinates from the request
+    $north = isset($_REQUEST['north']) ? $_REQUEST['north'] : null;
+    $south = isset($_REQUEST['south']) ? $_REQUEST['south'] : null;
+    $east = isset($_REQUEST['east']) ? $_REQUEST['east'] : null;
+    $west = isset($_REQUEST['west']) ? $_REQUEST['west'] : null;
 
-    // Ensure both lat and lng are provided
-    if ($latitude === null || $longitude === null) {
+    // Ensure that the bounding box coordinates are provided
+    if ($north === null || $south === null || $east === null || $west === null) {
         $output['status']['code'] = "400";
         $output['status']['name'] = "error";
-        $output['status']['description'] = "Latitude and Longitude are required.";
+        $output['status']['description'] = "Bounding box coordinates are required.";
         echo json_encode($output);
         exit;
     }
 
-    // Geonames API URL
-    $username = 'tembuu'; // Your Geonames username
-    $url = "http://api.geonames.org/findNearbyPlaceNameJSON?lat={$latitude}&lng={$longitude}&username={$username}&style=full";
+    // Geonames API URL for weather observations
+    $url = 'http://api.geonames.org/weatherJSON?formatted=true&north=' . $north . '&south=' . $south . '&east=' . $east . '&west=' . $west . '&username=tembuu';
 
     // Initialize cURL session
     $ch = curl_init();
@@ -40,14 +41,14 @@
     $output['status']['name'] = "ok";
     $output['status']['returnedIn'] = intval((microtime(true) - $executionStartTime) * 1000) . " ms";
 
-    // Check if the response contains place names data
-    if (isset($decode['geonames']) && count($decode['geonames']) > 0) {
-        $output['data'] = $decode['geonames'];
+    // Check if 'weatherObservations' key exists and has data
+    if (isset($decode['weatherObservations']) && count($decode['weatherObservations']) > 0) {
+        $output['data'] = $decode['weatherObservations'];
         $output['status']['description'] = "success";
     } else {
-        // Handle no data found
+        // Handle no weather data found
         $output['data'] = [];
-        $output['status']['description'] = "No nearby place names found.";
+        $output['status']['description'] = "No weather observations found for the provided region.";
     }
 
     // Set response header to JSON and output the result

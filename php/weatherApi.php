@@ -5,22 +5,23 @@
 
     $executionStartTime = microtime(true);
 
-    // Get latitude and longitude from the request
-    $latitude = isset($_REQUEST['lat']) ? $_REQUEST['lat'] : null;
-    $longitude = isset($_REQUEST['lng']) ? $_REQUEST['lng'] : null;
+    // Get the city name from the request
+    $city = isset($_REQUEST['city']) ? $_REQUEST['city'] : null;
 
-    // Ensure both lat and lng are provided
-    if ($latitude === null || $longitude === null) {
+    // Ensure city is provided
+    if ($city === null) {
         $output['status']['code'] = "400";
         $output['status']['name'] = "error";
-        $output['status']['description'] = "Latitude and Longitude are required.";
+        $output['status']['description'] = "City name is required.";
         echo json_encode($output);
         exit;
     }
 
-    // Geonames API URL
-    $username = 'tembuu'; // Your Geonames username
-    $url = "http://api.geonames.org/findNearbyPlaceNameJSON?lat={$latitude}&lng={$longitude}&username={$username}&style=full";
+    // Your WeatherAPI key
+    $apiKey = '42e5b3b1a7d647de862182415240709'; // Replace with your actual API key
+
+    // URL to fetch weather information with 3-day forecast for the given city
+    $url = 'http://api.weatherapi.com/v1/forecast.json?key=' . $apiKey . '&q=' . urlencode($city) . '&days=3';
 
     // Initialize cURL session
     $ch = curl_init();
@@ -40,14 +41,14 @@
     $output['status']['name'] = "ok";
     $output['status']['returnedIn'] = intval((microtime(true) - $executionStartTime) * 1000) . " ms";
 
-    // Check if the response contains place names data
-    if (isset($decode['geonames']) && count($decode['geonames']) > 0) {
-        $output['data'] = $decode['geonames'];
+    // Check if the weather data is found
+    if (isset($decode['location'])) {
+        $output['data'] = $decode; // Return the full weather data (current + forecast)
         $output['status']['description'] = "success";
     } else {
-        // Handle no data found
+        // Handle no data found for the location
         $output['data'] = [];
-        $output['status']['description'] = "No nearby place names found.";
+        $output['status']['description'] = "No weather data found for the provided location.";
     }
 
     // Set response header to JSON and output the result
