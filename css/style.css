@@ -1,4 +1,3 @@
-
 /* Apply Font */
 body {
     font-family: sans-serif;
@@ -76,31 +75,6 @@ body {
     text-decoration: none;
     color: #d2386c;
 }
-
-/* Nearby Wikipedia */
-#nearbywikiurl a {
-    text-decoration: none;
-    color: #ff1493;
-}
-
-#nearbywikiurl a:hover {
-    text-decoration: none;
-    color: #00A170;
-}
-
-/* News */
-#newslink a {
-    text-decoration: none;
-    color: #d2386c;
-}
-
-#newslink a:hover {
-    text-decoration: none;
-    color: #006b54;
-}
-
-
-
 
 /* Preloader */
 #preloader {
