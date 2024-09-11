@@ -1,7 +1,4 @@
-/*
-    Script for preloader
-    Waits for the entire page to load, then hides the preloader after 3 seconds.
-*/
+
 $(window).on('load', function () {
     $('#preloader').delay(3000).fadeOut("slow"); // Delay of 3 seconds, then slowly fade out the preloader
 });
@@ -13,16 +10,13 @@ $(document).ready(function () {
 
 // Functions
 
-/*
-    Converts a number to its ordinal form (e.g., 1 becomes 1st, 2 becomes 2nd)
-*/
+   // Converts a number to its ordinal form (e.g., 1 becomes 1st, 2 becomes 2nd)
+
 function nth(num) {
     return (num % 10 == 1 && num % 100 != 11) ? num.toString() + "st" : (num % 10 == 2 && num % 100 != 12) ? num.toString() + "nd" : (num % 10 == 3 && num % 100 != 13) ? num.toString() + "rd" : num.toString() + "th";
 }
 
-/*
-    Fetches the country code and updates the dropdown selection based on latitude and longitude
-*/
+ //  Fetches the country code and updates the dropdown selection based on latitude and longitude
 function updateCountryCodeAndCountryName(lat, lng) {
     $.ajax({
         url: "php/getCountryCode.php", // Make a POST request to get the country code
@@ -44,19 +38,18 @@ function updateCountryCodeAndCountryName(lat, lng) {
     });
 }
 
-/*
-    Compares two strings alphabetically, ignoring case sensitivity
-*/
+
+   // Compares two strings alphabetically
+
 function compareStrings(a, b) {
     let al = a.toLowerCase();
     let bl = b.toLowerCase();
     return (al < bl) ? -1 : (al > bl) ? 1 : 0; // Returns -1, 1, or 0 for sorting
 }
 
-/*
-    Formats large numbers with commas for better readability
-    e.g., 1970 becomes 1,970
-*/
+
+    //Formats large numbers with commas for better readability
+
 function largeNumberFormat(num) {
     const numStr = num.toString(); // Convert number to string
     const digits = numStr.length;  // Get the length of the number
@@ -1052,7 +1045,7 @@ let wikiBtn = L.easyButton({
                 },
 
                 error: function (jqXHR, textStatus, errorThrown) {
-                    // Your error code
+                    // error code
                 }
             });
             $('#wikiModal').modal('show');
@@ -1115,8 +1108,8 @@ let newsBtn = L.easyButton({
 
                                 // Build table for news article
                                 $('#newsresults').append(`<tr>`);
-                                $('#newsresults').append(`<td rowspan="2" class="w-50"><img class="img-fluid rounded" src="${imageUrl}" alt="${imageAlt}" title="${imageAlt}"></td>`);
                                 $('#newsresults').append(`<td id="newslink"><a href="${link}" target="_blank" title="View News Article">${title}</a></td>`);
+                                $('#newsresults').append(`<td rowspan="2" class="w-50"><img class="img-fluid rounded" src="${imageUrl}" alt="${imageAlt}" title="${imageAlt}"></td>`);
                                 $('#newsresults').append(`</tr>`);
                                 $('#newsresults').append(`<tr>`);
                                 $('#newsresults').append(`<td class="align-bottom pb-0">`);
@@ -1136,6 +1129,7 @@ let newsBtn = L.easyButton({
                 error: function (jqXHR, textStatus, errorThrown) {
                     $('#newsnodata').show();
                     $('#newsnodata').html(`Error retrieving news articles`);
+                    // error code
                 }
             });
             $('#newsModal').modal('show');
