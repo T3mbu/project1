@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="libs/leaflet/easy-button.min.css">
     <link rel="stylesheet" href="libs/leaflet/geosearch.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p1Q7Mqh7rZk1V7TRJx7S0FQzZ1Fh3E6b5S3Ih1Zp5eZ9Qx5A9X2xJ2B3G3M1G1H4C6J7K8L9M0N1O2P3Q4R5S6T7U8V9W0X1Y2Z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9A0B1C2D3E4F5G6H7I8J9K0L1M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+
 </head>
 
 <body>
@@ -326,6 +328,61 @@
         </div>
 
     </section>
+
+
+    <!-- Modal for Nearby Wikipedia -->
+    <section class="modal fade" id="wikiModal" tabindex="-1" aria-labelledby="wikiModalLabel" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="wikiModalLabel">Nearby Wikipedia</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Set Up Tablefor Nearby Wikipedia -->
+
+                    <table class="table caption-top" id="nearbywikiresults">
+                    </table>
+
+                    <!-- Set Up Any No Data Messages -->
+                    <div id="nearbywikinodata"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    
+   <!-- Modal for News Information -->
+   <section class="modal fade" id="newsModal" tabindex="-1" aria-labelledby="newsModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="newsModalLabel">News Information</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table" id="newsresults">
+                </table>
+
+                <!-- Set Up Any No Data Messages -->
+                <div id="newsnodata"></div>
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+</section>
 
 
   

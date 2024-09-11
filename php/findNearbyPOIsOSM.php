@@ -19,7 +19,7 @@
     }
 
     // GeoNames API URL for finding nearby POIs (OpenStreetMap)
-    $username = 'tembuu';  // Your GeoNames username
+    $username = 'tembuu'; 
     $url = 'http://api.geonames.org/findNearbyPOIsOSMJSON?lat=' . $latitude . '&lng=' . $longitude . '&username=' . $username;
 
     // Initialize cURL session

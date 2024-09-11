@@ -19,7 +19,7 @@
     }
 
     // Geonames Wikipedia API URL
-    $username = 'tembuu'; // Geonames username
+    $username = 'tembuu'; 
     $url = "http://api.geonames.org/findNearbyWikipediaJSON?formatted=true&lat={$latitude}&lng={$longitude}&username={$username}&style=full";
 
     // Initialize cURL session

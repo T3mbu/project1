@@ -8,7 +8,7 @@
     // Get the country code from the request
     $countryCode = isset($_REQUEST['countryCode']) ? $_REQUEST['countryCode'] : 'US'; // Default to 'US'
 
-    // Load the GeoJSON file with country borders (assuming the file is in the same directory)
+    // Load the GeoJSON file with country borders
     $file = 'countryBorders.geo.json';
     $data = file_get_contents($file);
     $borders = json_decode($data, true);

@@ -1,58 +1,47 @@
 <?php
 
-    ini_set('display_errors', 'On');
-    error_reporting(E_ALL);
+// Enable error reporting for debugging purposes
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
 
-    $executionStartTime = microtime(true);
+// Start measuring execution time
+$executionStartTime = microtime(true);
 
-    // Geonames API URL to get all countries
-    $url = 'http://api.geonames.org/countryInfoJSON?formatted=true&username=tembuu';
+// Load the GeoJSON file containing country borders and names
+$file = 'countryBorders.geo.json';
+$data = file_get_contents($file);
 
-    // Initialize cURL session
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_URL, $url);
+// Decode the JSON data into an associative array
+$borders = json_decode($data, true);
 
-    // Execute the API request
-    $result = curl_exec($ch);
-    curl_close($ch);
+// Initialize an array to store the country names and their ISO codes
+$countryNames = [];
 
-    // Decode the result into an associative array
-    $decode = json_decode($result, true);
+// Loop through each feature in the GeoJSON data
+foreach ($borders['features'] as $feature) {
+    // Extract the country name and ISO_A2 code
+    $countryName = $feature['properties']['name'];
+    $isoCode = $feature['properties']['iso_a2'];
 
-    // Check if the response contains the 'geonames' key
-    if (isset($decode['geonames']) && count($decode['geonames']) > 0) {
-        $features = [];
+    // Add each country to the array with its name and ISO code
+    $countryNames[] = [
+        'name' => $countryName,
+        'iso_a2' => $isoCode
+    ];
+}
 
-        // Loop through and format data to match the expected structure
-        foreach ($decode['geonames'] as $country) {
-            $features[] = [
-                'properties' => [
-                    'iso_a2' => $country['countryCode'],
-                    'name' => $country['countryName']
-                ]
-            ];
-        }
+// Prepare the response
+$response = [
+    'status' => [
+        'name' => 'ok',
+        'code' => 200,
+        'description' => 'success'
+    ],
+    'data' => $countryNames
+];
 
-        // Prepare output
-        $output['status']['code'] = "200";
-        $output['status']['name'] = "ok";
-        $output['status']['description'] = "success";
-        $output['data']['features'] = $features; // Placing country data in 'features'
-    } else {
-        // Handle case where no countries are found
-        $output['status']['code'] = "404";
-        $output['status']['name'] = "error";
-        $output['status']['description'] = "Countries not found.";
-        $output['data'] = [];
-    }
-
-    // Add execution time
-    $output['status']['returnedIn'] = intval((microtime(true) - $executionStartTime) * 1000) . " ms";
-
-    // Set response header to JSON and output the result
-    header('Content-Type: application/json; charset=UTF-8');
-    echo json_encode($output);
+// Set response header to JSON and output the result
+header('Content-Type: application/json; charset=UTF-8');
+echo json_encode($response);
 
 ?>

@@ -17,8 +17,8 @@
         exit;
     }
 
-    // Your WeatherAPI key
-    $apiKey = '42e5b3b1a7d647de862182415240709'; // Replace with your actual API key
+    
+    $apiKey = '42e5b3b1a7d647de862182415240709'; 
 
     // URL to fetch weather information with 3-day forecast for the given city
     $url = 'http://api.weatherapi.com/v1/forecast.json?key=' . $apiKey . '&q=' . urlencode($city) . '&days=3';

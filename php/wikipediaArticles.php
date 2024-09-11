@@ -20,7 +20,7 @@
         exit;
     }
 
-    // Geonames API URL for Wikipedia articles based on bounding box
+    // Geonames API URL for Wikipedia articles
     $url = 'http://api.geonames.org/wikipediaBoundingBoxJSON?north=' . $north . '&south=' . $south . '&east=' . $east . '&west=' . $west . '&username=tembuu';
 
     // Initialize cURL session

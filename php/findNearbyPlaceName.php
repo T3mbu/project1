@@ -19,7 +19,7 @@
     }
 
     // Geonames API URL
-    $username = 'tembuu'; // Your Geonames username
+    $username = 'tembuu'; 
     $url = "http://api.geonames.org/findNearbyPlaceNameJSON?lat={$latitude}&lng={$longitude}&username={$username}&style=full";
 
     // Initialize cURL session

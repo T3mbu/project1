@@ -18,7 +18,7 @@
     }
 
     // OpenCage API URL with your API key
-    $apiKey = 'c07440e9e0ee49158725329a08a4928a'; // Your OpenCage API key
+    $apiKey = 'c07440e9e0ee49158725329a08a4928a'; //OpenCage API key
     $url = 'https://api.opencagedata.com/geocode/v1/json?q=' . urlencode($country) . '&key=' . $apiKey;
 
     // Initialize cURL session

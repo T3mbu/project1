@@ -141,25 +141,27 @@ map.locate({ setView: true, maxZoom: 6 });
 /*
     Fetches country names and populates the country dropdown menu.
     The country names are sorted alphabetically.
+    Updated to take from countryBorders.geo.json instead of geonames API
 */
 $.ajax({
     url: 'php/getCountryName.php',
-    type: 'POST',
-    dataType: 'JSON',
+    type: 'POST', 
+    dataType: 'JSON', 
     success: function (result) {
+        // Check if the response status is OK
         if (result.status.name == "ok") {
-            // Sort country names alphabetically
-            result.data.features.sort((a, b) => compareStrings(a.properties.name, b.properties.name));
-            
-            // Populate the country dropdown
-            for (let i = 0; i < result.data.features.length; i++) {
-                let $option = $('<option>').val(result.data.features[i].properties.iso_a2).text(result.data.features[i].properties.name);
-                $('#selCountry').append($option);
+            // Sort the country names alphabetically by their name property
+            result.data.sort((a, b) => compareStrings(a.name, b.name));
+
+            // Loop through the sorted data and populate the dropdown menu with country names and ISO codes
+            for (let i = 0; i < result.data.length; i++) {
+                let $option = $('<option>').val(result.data[i].iso_a2).text(result.data[i].name);
+                $('#selCountry').append($option); // Append each country to the select element
             }
         }
     },
     error: function (jqXHR, textStatus, errorThrown) {
-        // Error handling
+       
     }
 });
 
@@ -446,7 +448,7 @@ $.ajax({
 let infoBtn = L.easyButton({
     states: [{
         stateName: 'get-country-information',
-        icon: 'fa-info',  // Use the info icon for the button
+        icon: 'fa-solid fa-info',  // Use the info icon from local FontAwesome files
         title: 'Country Information',  // Tooltip for the button
         onClick: function (btn, map) {
             // Clear the HTML content for the country information fields
@@ -488,11 +490,11 @@ let infoBtn = L.easyButton({
                         let countryCapitalWithUnderscores = countryCapital.replaceAll(" ", "_");
                         let countryPopulation = result['data'][0]['population'];
 
-                        // Update the HTML with the country name and capital, including Wikipedia links
-                        $("#countryname").html(`<a href="https://en.wikipedia.org/wiki/${countryNameWithUnderscores}" target="_blank" title="View More Details for ${countryName}">${countryName}</a>`);
-                        $("#countrycapital").html(`<a href="https://en.wikipedia.org/wiki/${countryCapitalWithUnderscores}" target="_blank" title="View More Details for ${countryCapital}">${countryCapital}</a>`);
-                        $("#countrypopulation").html(`${largeNumberFormat(countryPopulation)}`);
-                        $("#countrycontinent").html(`${result['data'][0]['continentName']} (${result['data'][0]['continent']})`);
+                        // Update the HTML with the country name and capital, including Wikipedia links and icons
+                        $("#countryname").html(`<i class="fa-solid fa-flag"></i> <a href="https://en.wikipedia.org/wiki/${countryNameWithUnderscores}" target="_blank" title="View More Details for ${countryName}">${countryName}</a>`);
+                        $("#countrycapital").html(`<i class="fa-solid fa-city"></i> <a href="https://en.wikipedia.org/wiki/${countryCapitalWithUnderscores}" target="_blank" title="View More Details for ${countryCapital}">${countryCapital}</a>`);
+                        $("#countrypopulation").html(`<i class="fa-solid fa-user-group"></i> ${largeNumberFormat(countryPopulation)}`);
+                        $("#countrycontinent").html(`<i class="fa-solid fa-globe"></i> ${result['data'][0]['continentName']} (${result['data'][0]['continent']})`);
 
                         // Fetch additional data from REST Countries API
                         $.ajax({
@@ -509,7 +511,7 @@ let infoBtn = L.easyButton({
                                     if (countryCapital.length == 0) {
                                         countryCapital = result['data'][0]['capital'][0];
                                         countryCapitalWithUnderscores = countryCapital.replaceAll(" ", "_");
-                                        $("#countrycapital").html(`<a href="https://en.wikipedia.org/wiki/${countryCapitalWithUnderscores}" target="_blank" title="View More Details for ${countryCapital}">${countryCapital}</a>`);
+                                        $("#countrycapital").html(`<i class="fa-solid fa-city"></i> <a href="https://en.wikipedia.org/wiki/${countryCapitalWithUnderscores}" target="_blank" title="View More Details for ${countryCapital}">${countryCapital}</a>`);
                                     }
                                 }
                             },
@@ -540,21 +542,21 @@ let infoBtn = L.easyButton({
                         const filterData = result.data.results.filter((componentType) => componentType.components._type === "country" || componentType.components._type === "administrative" || (componentType.components._type === "state" && componentType.components.state_code === "PR"));
 
                         // Update the HTML with additional country data (currency, drive side, etc.)
-                        $("#countrycurrency").html(filterData[0]['annotations']['currency']['name']);
-                        $("#countrydriveon").html(filterData[0]['annotations']['roadinfo']['drive_on']);
-                        $("#countryspeedunit").html(filterData[0]['annotations']['roadinfo']['speed_in']);
-                        $("#countrywhatthreewords").html(filterData[0]['annotations']['what3words']['words']);
-                        $("#countryflag").html(filterData[0]['annotations']['flag']);
+                        $("#countrycurrency").html(`<i class="fa-solid fa-money-bill-wave"></i> ${filterData[0]['annotations']['currency']['name']}`);
+                        $("#countrydriveon").html(`<i class="fa-solid fa-car-side"></i> ${filterData[0]['annotations']['roadinfo']['drive_on']}`);
+                        $("#countryspeedunit").html(`<i class="fa-solid fa-tachometer-alt"></i> ${filterData[0]['annotations']['roadinfo']['speed_in']}`);
+                        $("#countrywhatthreewords").html(`<i class="fa-solid fa-map-marker-alt"></i> ${filterData[0]['annotations']['what3words']['words']}`);
+                        $("#countryflag").html(`<i class="fa-solid fa-flag"></i> ${filterData[0]['annotations']['flag']}`);
 
-                        // Convert apparent sunrise/sunset times to human-readable format
+                        // Format sunrise/sunset times 
                         const apparentSunrise = filterData[0]['annotations']['sun']['rise']['apparent'];
                         const apparentSunset = filterData[0]['annotations']['sun']['set']['apparent'];
                         const apparentSunriseDateTime = new Date(apparentSunrise * 1000);
                         const apparentSunsetDateTime = new Date(apparentSunset * 1000);
 
-                        // Update the HTML with sunrise and sunset times
-                        $("#countryapparentsunrise").html(apparentSunriseDateTime.toTimeString().slice(0, 5));
-                        $("#countryapparentsunset").html(apparentSunsetDateTime.toTimeString().slice(0, 5));
+                        // Update the HTML with sunrise and sunset times and cut off seconds
+                        $("#countryapparentsunrise").html(`<i class="fa-solid fa-sun"></i> ${apparentSunriseDateTime.toTimeString().slice(0, 5)}`);
+                        $("#countryapparentsunset").html(`<i class="fa-solid fa-moon"></i> ${apparentSunsetDateTime.toTimeString().slice(0, 5)}`);
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -568,11 +570,15 @@ let infoBtn = L.easyButton({
     }]
 });
 
+
 // Apply styling to the information button
 infoBtn.button.style.backgroundColor = '#800020'; // Dark red color
 
 // Add the info button to the map
 infoBtn.addTo(map);
+
+/////////////////////////////////////////
+
 
 // Set Up Exchange Button
 let exchangeBtn = L.easyButton({
@@ -900,7 +906,7 @@ weatherBtn.addTo(map);
 // Set Up Nearby Placename Button
 let nearbyPlacenameBtn = L.easyButton({
     states: [{
-        stateName: 'find-nearby-placename',
+        stateName: 'find-nearby-placename',  // State name for the button
         icon: 'fa-location-crosshairs',  // Use the crosshairs icon for the button
         title: 'Nearby Placename',  // Tooltip for the button
         onClick: function (btn, map) {
@@ -935,7 +941,7 @@ let nearbyPlacenameBtn = L.easyButton({
                 success: function (result) {
                     if (result.status.name == "ok") {
                         // Update the UI with the nearby place name
-                        $('#placename').html(result['data'][0]['name']);
+                        $('#placename').html(`<i class="fa-solid fa-map-marker-alt"></i> ${result['data'][0]['name']}`);
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -958,20 +964,20 @@ let nearbyPlacenameBtn = L.easyButton({
                         let county = result['data']['results'][0]['components']['county'];
                         if (county != undefined) {
                             $(".placecountyrow").show();
-                            $("#placecounty").html(county);
+                            $("#placecounty").html(`<i class="fa-solid fa-building"></i> ${county}`);
                         }
 
-                        // Update the UI with additional place information
-                        $("#placestate").html(result['data']['results'][0]['components']['state']);
-                        $('#placecountry').html(result['data']['results'][0]['components']['country']);
-                        $("#placeformatted").html(result['data']['results'][0]['formatted']);
-                        $("#placewhatthreewords").html(result['data']['results'][0]['annotations']['what3words']['words']);
+                        // Update the UI with additional place information, including icons
+                        $("#placestate").html(`<i class="fa-solid fa-landmark"></i> ${result['data']['results'][0]['components']['state']}`);
+                        $('#placecountry').html(`<i class="fa-solid fa-globe"></i> ${result['data']['results'][0]['components']['country']}`);
+                        $("#placeformatted").html(`<i class="fa-solid fa-map"></i> ${result['data']['results'][0]['formatted']}`);
+                        $("#placewhatthreewords").html(`<i class="fa-solid fa-map-marker-alt"></i> ${result['data']['results'][0]['annotations']['what3words']['words']}`);
                         
-                        // Convert and display sunrise and sunset times
+                        // Convert and display sunrise and sunset times with icons
                         const apparentSunrise = new Date(result['data']['results'][0]['annotations']['sun']['rise']['apparent'] * 1000);
                         const apparentSunset = new Date(result['data']['results'][0]['annotations']['sun']['set']['apparent'] * 1000);
-                        $("#placeapparentsunrise").html(apparentSunrise.toTimeString().slice(0, 5));
-                        $("#placeapparentsunset").html(apparentSunset.toTimeString().slice(0, 5));
+                        $("#placeapparentsunrise").html(`<i class="fa-solid fa-sun"></i> ${apparentSunrise.toTimeString().slice(0, 5)}`);
+                        $("#placeapparentsunset").html(`<i class="fa-solid fa-moon"></i> ${apparentSunset.toTimeString().slice(0, 5)}`);
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -990,3 +996,155 @@ nearbyPlacenameBtn.button.style.backgroundColor = '#BFD641';  // Light green col
 
 // Add the nearby placename button to the map
 nearbyPlacenameBtn.addTo(map);
+
+
+let wikiBtn = L.easyButton({
+    states: [{
+        stateName: 'find-nearby-wikipedia',
+        icon: 'fa-brands fa-wikipedia-w',
+        title: 'Nearby Wikipedia Information',
+        onClick: function (btn, map) {
+            // Clear entries
+            $('#nearbywikiresults').html(``);
+            $('#nearbywikinodata').html(``);
+            // Hide Nearby Wikipedia No Data Message
+            $('#nearbywikinodata').hide();
+            const center = map.getCenter();
+            const latitude = center["lat"];
+            const longitude = center["lng"];
+            // Get Updated Country Code based on Latitude and Longitude
+            updateCountryCodeAndCountryName(latitude, longitude);
+
+            // Fill entries
+            $.ajax({
+                url: "php/findNearbyWikipedia.php",
+                type: 'POST',
+                dataType: 'JSON',
+                data: {
+                    lat: latitude,
+                    lng: longitude
+                },
+                success: function (result) {
+
+                    if (result.status.name == "ok") {
+                        const counts = result.data.length;
+                        // If there are no counts
+                        if (counts == 0) {
+
+                            // Show the No Nearby Wikipedia Articles Message
+                            $('#nearbywikinodata').show();
+                            $('#nearbywikinodata').html(`No Nearby Wikipedia Articles`);
+
+                        } else {
+                            // Build the Table
+                            $('#nearbywikiresults').append(`<caption>${counts} Nearby Wikipedia Articles</caption>`);
+                            for (let idx = 0; idx < counts; idx++) {
+                                let title = result['data'][idx]['title'];
+                                let summary = result['data'][idx]['summary'];
+                                let url = result['data'][idx]['wikipediaUrl'];
+                                $('#nearbywikiresults').append(`<tr><td>${title}</td></tr>`);
+                                $('#nearbywikiresults').append(`<tr><td>${summary}</td></tr>`);
+                                $('#nearbywikiresults').append(`<tr><td class="text-center" id="nearbywikiurl"><a href="https://${url}" target="_blank" title="View Wikipedia Article for ${title}">View Wikipedia Article</a><p></p></td></tr>`);
+                            }
+                        }
+
+                    }
+                },
+
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Your error code
+                }
+            });
+            $('#wikiModal').modal('show');
+        }
+    }]
+});
+
+// Apply Styling to Wikipedia Button
+wikiBtn.button.style.backgroundColor = '#505050';
+
+// Add Wikipedia Button to Map
+wikiBtn.addTo(map);
+
+
+let newsBtn = L.easyButton({
+    states: [{
+        stateName: 'get-news',
+        icon: 'fa-newspaper',
+        title: 'News',
+        onClick: function (btn, map) {
+            // Clear entries
+            $('#newsresults').html(``);
+            $('#newsnodata').html(``);
+            // Hide News No Data Message
+            $('#newsnodata').hide();
+            const center = map.getCenter();
+            const latitude = center["lat"];
+            const longitude = center["lng"];
+            // Get Updated Country Code based on Latitude and Longitude
+            updateCountryCodeAndCountryName(latitude, longitude);
+
+            // Fill entries
+            $.ajax({
+                url: "php/newsApi.php",
+                type: 'POST',
+                dataType: 'JSON',
+                data: {
+                    country: $('#selCountry').val()
+                },
+                success: function (result) {
+
+                    if (result.status.name == "ok") {
+
+                        // If there are no counts
+                        if (result['data']['totalResults'] == 0 || result['data']['totalResults'] == undefined) {
+                            $('#newsnodata').show();
+                            $('#newsnodata').html(`No news articles for selected country`);
+                        } else {
+                            // Build the Table
+
+                            // Display the First 6 News Results
+                            for (let idx = 0; idx < 6; idx++) {
+                                let title = result['data']['results'][idx]['title'];
+                                let imageUrl = result['data']['results'][idx]['image_url'] !== null ? result['data']['results'][idx]['image_url'] : "breakingnews.jpg";
+                              	// Check for empty image URL after removing whitespace or image URLs not ending with .jpg 
+                                if (imageUrl.trim().length == 0 || !imageUrl.endsWith(".jpg")) imageUrl = "breakingnews.jpg";
+                                let imageAlt = imageUrl !== "breakingnews.jpg" ? title : "Breaking News";
+                                let sourceID = result['data']['results'][idx]['source_id'];
+                                let link = result['data']['results'][idx]['link'];
+
+                                // Build table for news article
+                                $('#newsresults').append(`<tr>`);
+                                $('#newsresults').append(`<td rowspan="2" class="w-50"><img class="img-fluid rounded" src="${imageUrl}" alt="${imageAlt}" title="${imageAlt}"></td>`);
+                                $('#newsresults').append(`<td id="newslink"><a href="${link}" target="_blank" title="View News Article">${title}</a></td>`);
+                                $('#newsresults').append(`</tr>`);
+                                $('#newsresults').append(`<tr>`);
+                                $('#newsresults').append(`<td class="align-bottom pb-0">`);
+                                $('#newsresults').append(`<p class="fs-6 mb-1">${sourceID}</p>`);
+                                $('#newsresults').append(`</td></tr>`);
+                                $('#newsresults').append(`<tr><td colspan="2"><p class="border-bottom border-dark"></p></td></tr>`);
+
+                            }
+                        }
+
+                    } else {
+                        $('#newsnodata').show();
+                        $('#newsnodata').html(`Error retrieving news articles`);
+                    }
+                },
+
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('#newsnodata').show();
+                    $('#newsnodata').html(`Error retrieving news articles`);
+                }
+            });
+            $('#newsModal').modal('show');
+        }
+    }]
+});
+
+// Apply Styling to News Button
+newsBtn.button.style.backgroundColor = '#FFFFFF';
+
+// Add News Button to Map
+newsBtn.addTo(map);
