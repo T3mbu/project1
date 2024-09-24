@@ -69,6 +69,53 @@ function largeNumberFormat(num) {
     return [...result].reverse().join('');
 }
 
+/*
+    Function to Select a Random Country from the Dropdown and Simulate a User Selection
+*/
+// Function to select a random country from the dropdown and move the map
+// Function to select a random country from the dropdown and move the map
+    /*
+        Function to Select a Random Country from the Dropdown and Simulate a User Selection
+    */
+        function selectRandomCountry() {
+            const countries = $('#selCountry option');
+            const randomIndex = Math.floor(Math.random() * countries.length);
+            const randomCountry = countries[randomIndex].value;
+            
+            // Set the dropdown to the random country and trigger the change event
+            $('#selCountry').val(randomCountry).trigger('change');
+        }
+    
+
+// Function to update country information
+function updateCountryInfo(countryCode) {
+    $.ajax({
+        url: "php/getCountryInfo.php",
+        type: 'POST',
+        dataType: 'JSON',
+        data: {
+            country: countryCode
+        },
+        success: function (result) {
+            if (result.status.name == "ok") {
+                let countryName = result['data'][0]['countryName'];
+                let countryCapital = result['data'][0]['capital'];
+                let countryPopulation = result['data'][0]['population'];
+
+                // Update modal content
+                $("#countryname").html(countryName);
+                $("#countrycapital").html(countryCapital);
+                $("#countrypopulation").html(countryPopulation);
+
+                // Show the modal with the country info
+                $('#infoModal').modal('show');
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error("Error fetching country info: " + errorThrown);
+        }
+    });
+}
 // Set up the map
 
 // Basemap layers from different sources (Streets, Satellite, Dark)
@@ -1142,3 +1189,21 @@ newsBtn.button.style.backgroundColor = '#FFFFFF';
 
 // Add News Button to Map
 newsBtn.addTo(map);
+
+let randomizerBtn = L.easyButton({
+    states: [{
+        stateName: 'randomize-country',  // State name for the button
+        icon: 'fa-solid fa-question',    // Use the question mark icon for the button
+        title: 'Random Country',         // Tooltip for the button
+        onClick: function (btn, map) {
+            // Select a random country and trigger the change event
+            selectRandomCountry();
+        }
+    }]
+});
+
+// Apply styling to the randomizer button
+randomizerBtn.button.style.backgroundColor = '#FFC0CB';  // Pink background color
+
+// Add the randomizer button to the map
+randomizerBtn.addTo(map);
