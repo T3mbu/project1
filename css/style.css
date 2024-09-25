@@ -76,6 +76,46 @@ body {
     color: #d2386c;
 }
 
+/* country info preloader */
+#country-info-preloader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #56829e; 
+}
+
+
+
+/* Add color to the h1 in the modal header */
+#weatherModal .modal-header h1 {
+    color: #075070; 
+    font-weight: bold;
+}
+
+
+
+.forecast-box {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 5px;
+    background-color: #f9f9f9;
+}
+
+.forecast-box p {
+    margin: 0;
+}
+
+#lastUpdated {
+    font-size: 0.8rem; 
+}
+
 
 /* Preloader */
 #preloader {
@@ -86,14 +126,14 @@ body {
     bottom: 0;
     z-index: 9999;
     overflow: hidden;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #preloader::before {
     content: "";
-    position: fixed;
-    top: calc(50% - 30px);
-    left: calc(50% - 30px);
     border: 6px solid #f2f2f2;
     border-top: 6px solid #56829e;
     border-radius: 50%;
@@ -125,4 +165,9 @@ body {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
     }
+}
+
+/* Hide the map until the first country renders */
+body.loading #map {
+    visibility: hidden;
 }

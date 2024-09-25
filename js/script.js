@@ -1,11 +1,11 @@
 
 $(window).on('load', function () {
-    $('#preloader').delay(3000).fadeOut("slow"); // Delay of 3 seconds, then slowly fade out the preloader
-});
-
-$(document).ready(function () {
-    // Show the project information modal when the page is fully loaded
-    $('#projectInfoModal').modal('show');
+    // Delay preloader hide until map data is fully rendered
+    $(document).ready(function () {
+        $('#preloader').delay(1000).fadeOut("slow", function () {
+            $('body').removeClass('loading');
+        });
+    });
 });
 
 // Functions
@@ -373,8 +373,8 @@ $.ajax({
                         // Iterate through the fetched weather observations
                         for (let i = 0; i < result['data'].length; i++) {
                             let weatherObservationText = ``;
-                            let weatherDate = new Date(result['data'][i]['datetime']);
-                            let weatherObservation = result['data'][i]['observation'];
+                            // let weatherDate = new Date(result['data'][i]['datetime']);
+                            // let weatherObservation = result['data'][i]['observation'];
                             let weatherStationName = result['data'][i]['stationName'];
                             let weatherClouds = result['data'][i]['clouds'];
                             let weatherLatitude = result['data'][i]['lat'];
@@ -382,11 +382,9 @@ $.ajax({
                             let weatherTemperature = result['data'][i]['temperature'];
 
                             // Build the text content for the weather observation popup
-                            weatherObservationText += `Date and Time - ${weatherDate.toDateString()} - ${weatherDate.toTimeString().slice(0, 5)} <br/>`;
-                            weatherObservationText += `Observation - ${weatherObservation} <br/>`;
-                            weatherObservationText += `Weather Station - ${weatherStationName} <br/>`;
-                            weatherObservationText += `Clouds - ${weatherClouds} <br/>`;
-                            weatherObservationText += `Temperature - ${weatherTemperature} °C`;
+                            weatherObservationText += `${weatherStationName} <br/>`;
+                            weatherObservationText += `${weatherClouds} <br/>`;
+                            weatherObservationText += `${weatherTemperature} °C`;
 
                             // Store the observation's coordinates, station name, and text
                             weatherObservationCoords.push([weatherLatitude, weatherLongitude, weatherStationName, weatherObservationText]);
@@ -484,7 +482,6 @@ $.ajax({
 
 // //////////////////////////////////////////
 
-// Set Up Easy Buttons
 let infoBtn = L.easyButton({
     states: [{
         stateName: 'get-country-information',
@@ -503,12 +500,16 @@ let infoBtn = L.easyButton({
             $('#countryflag').html(``);
             $('#countryapparentsunrise').html(``);
             $('#countryapparentsunset').html(``);
-            
+
+            // Show preloader and hide the country info table initially
+            $('#country-info-preloader').show();
+            $('#country-info-table').hide();
+
             // Get the current map center to retrieve the latitude and longitude
             const center = map.getCenter();
             const latitude = center["lat"];
             const longitude = center["lng"];
-            
+
             // Update the country code based on the current location (lat, lng)
             updateCountryCodeAndCountryName(latitude, longitude);
 
@@ -521,7 +522,6 @@ let infoBtn = L.easyButton({
                     country: $('#selCountry').val() // Use the selected country code
                 },
                 success: function (result) {
-
                     if (result.status.name == "ok") {
                         // Extract the country information from the result
                         let countryName = result['data'][0]['countryName'];
@@ -536,33 +536,14 @@ let infoBtn = L.easyButton({
                         $("#countrypopulation").html(`<i class="fa-solid fa-user-group"></i> ${largeNumberFormat(countryPopulation)}`);
                         $("#countrycontinent").html(`<i class="fa-solid fa-globe"></i> ${result['data'][0]['continentName']} (${result['data'][0]['continent']})`);
 
-                        // Fetch additional data from REST Countries API
-                        $.ajax({
-                            url: "php/restCountries.php",
-                            type: 'POST',
-                            dataType: 'JSON',
-                            data: {
-                                // Adjust country names that might have special characters
-                                country: $('#selCountry :selected').text().replace("W. Sahara", "Western Sahara").replaceAll(" ", "%20")
-                            },
-                            success: function (result) {
-                                if (result.status.name == "ok") {
-                                    // If capital is not provided, fall back to REST Countries data
-                                    if (countryCapital.length == 0) {
-                                        countryCapital = result['data'][0]['capital'][0];
-                                        countryCapitalWithUnderscores = countryCapital.replaceAll(" ", "_");
-                                        $("#countrycapital").html(`<i class="fa-solid fa-city"></i> <a href="https://en.wikipedia.org/wiki/${countryCapitalWithUnderscores}" target="_blank" title="View More Details for ${countryCapital}">${countryCapital}</a>`);
-                                    }
-                                }
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                                // Handle errors for REST Countries API
-                            }
-                        });
+                        // Hide preloader and show the country info table
+                        $('#country-info-preloader').hide();
+                        $('#country-info-table').show();
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    // Handle errors for Geonames API
+                    // Handle errors for Geonames API and hide preloader
+                    $('#country-info-preloader').hide();
                 }
             });
 
@@ -576,7 +557,6 @@ let infoBtn = L.easyButton({
                     country: $('#selCountry :selected').text().replaceAll(" ", "%20").replace("Dem.%20Rep.%20Korea", "North%20Korea").replace("Rep.", "Republic").replace("Lao%20PDR", "Laos")
                 },
                 success: function (result) {
-
                     if (result.status.name == "ok") {
                         // Filter out results based on component types
                         const filterData = result.data.results.filter((componentType) => componentType.components._type === "country" || componentType.components._type === "administrative" || (componentType.components._type === "state" && componentType.components.state_code === "PR"));
@@ -610,7 +590,6 @@ let infoBtn = L.easyButton({
     }]
 });
 
-
 // Apply styling to the information button
 infoBtn.button.style.backgroundColor = '#800020'; // Dark red color
 
@@ -618,6 +597,7 @@ infoBtn.button.style.backgroundColor = '#800020'; // Dark red color
 infoBtn.addTo(map);
 
 /////////////////////////////////////////
+
 
 
 // Set Up Exchange Button
@@ -691,9 +671,9 @@ let exchangeBtn = L.easyButton({
                                     $('#fromamount').on('keyup', function () {
                                         const amount = $('#fromamount').val();
 
-                                        // Validate the amount input
-                                        if (amount < 1 || amount > 1000000 || (amount[0] == "0" && amount.length > 1) || !Number.isInteger(Number(amount))) {
-                                            $('#exchangeresults').html(`<p class="error-text">Please enter a valid whole number between 1 and 1,000,000 (in ${selectedCurrencyCode}).</p>`);
+                                        // Validate the amount input (No limit or specific validation)
+                                        if (amount < 1 || !Number.isInteger(Number(amount))) {
+                                            $('#exchangeresults').html(``); // Blank error message
                                         } else {
                                             calculateResult();
                                         }
@@ -709,9 +689,8 @@ let exchangeBtn = L.easyButton({
                                         calculateResult();
                                     });
 
-                                    /*
-                                        Function to calculate and display the exchange result
-                                    */
+                                    
+                                    //    Function to calculate and display the exchange result
                                     function calculateResult() {
                                         selectedCurrency = $('#selCurrency :selected').text();
                                         const fromCurrencyToUSD = 1 / result['data']['rates'][selectedCurrencyCode]; // Get exchange rate for base currency
@@ -748,6 +727,7 @@ let exchangeBtn = L.easyButton({
     }]
 });
 
+
 // Apply enhanced styling to the exchange button
 exchangeBtn.button.style.backgroundColor = '#228B22'; // Green color
 
@@ -757,6 +737,7 @@ exchangeBtn.addTo(map);
 // ///////////////////////////////////////////
 
 
+
 // Set Up Weather Button
 let weatherBtn = L.easyButton({
     states: [{
@@ -764,9 +745,13 @@ let weatherBtn = L.easyButton({
         icon: 'fa-solid fa-cloud',  // Use the cloud icon for the button
         title: 'Weather Information',  // Tooltip for the button
         onClick: function (btn, map) {
+
+            // Show the preloader and hide the weather data content
+            $('#weather-preloader').show();
+            $('#currenttemp, #currentconditions, #day0date, #day1date, #day2date').hide();
+
             // Clear the weather data fields in the UI
             $('#weathercityname').html(``);
-            $('#weathertzid').html(``);
             $('#lastupdated').html(``);
             $('#currentconditions').html(``);
             $('#currenttemp').html(``);
@@ -847,7 +832,6 @@ let weatherBtn = L.easyButton({
                                                 // Set up weather data from the result
                                                 const place = result['data']['location']['name'];
                                                 const country = result['data']['location']['country'];
-                                                const tzid = result['data']['location']['tz_id'];
                                                 const lastUpdated = new Date(result['data']['current']['last_updated']);
                                                 const currentTemp = Math.round(result['data']['current']['temp_c']);
                                                 const currentConditions = result['data']['current']['condition']['text'];
@@ -881,10 +865,13 @@ let weatherBtn = L.easyButton({
                                                 const day2Day = day2Date.toDateString().slice(8, 10);
                                                 const day2DayNum = parseInt(day2Day);
 
+                                                // Hide the preloader and show the data once it has been retrieved
+                                                $('#weather-preloader').hide();
+                                                $('#currenttemp, #currentconditions, #day0date, #day1date, #day2date').show();
+
                                                 // Update the weather data in the HTML elements
                                                 $("#weathercityname").html(`${place}, ${country}`);
-                                                $('#weathertzid').html(`${tzid}`);
-                                                $('#lastupdated').html(`${lastUpdated.toDateString()} - ${lastUpdated.toTimeString().slice(0, 5)}`);
+                                                $('#lastupdated').html(`${lastUpdated.toDateString()}`); // Only the date
 
                                                 $('#currenttemp').html(`${currentTemp} &deg;C`);
                                                 $("#currentconditions").html(`${currentConditions}`);
@@ -907,12 +894,14 @@ let weatherBtn = L.easyButton({
 
                                             } else {
                                                 // Show an error message if weather data retrieval fails
+                                                $('#weather-preloader').hide();
                                                 $('#weathererror').show();
                                                 $('#weathererror').html(`Error Retrieving Weather Information`);
                                             }
                                         },
                                         error: function (jqXHR, textStatus, errorThrown) {
                                             // Show an error message if the API request fails
+                                            $('#weather-preloader').hide();
                                             $('#weathererror').show();
                                             $('#weathererror').html(`Error Retrieving Weather Information`);
                                         }
@@ -935,6 +924,8 @@ let weatherBtn = L.easyButton({
         }
     }]
 });
+
+
 
 // Apply styling to the weather button
 weatherBtn.button.style.backgroundColor = '#1434A4';  // Blue color
@@ -1044,18 +1035,22 @@ let wikiBtn = L.easyButton({
         icon: 'fa-brands fa-wikipedia-w',
         title: 'Nearby Wikipedia Information',
         onClick: function (btn, map) {
-            // Clear entries
+            // Clear previous entries
             $('#nearbywikiresults').html(``);
             $('#nearbywikinodata').html(``);
+
             // Hide Nearby Wikipedia No Data Message
             $('#nearbywikinodata').hide();
+
+            // Get map's current center latitude and longitude
             const center = map.getCenter();
             const latitude = center["lat"];
             const longitude = center["lng"];
-            // Get Updated Country Code based on Latitude and Longitude
+
+            // Update country code based on the current latitude and longitude
             updateCountryCodeAndCountryName(latitude, longitude);
 
-            // Fill entries
+            // Fill Wikipedia entries
             $.ajax({
                 url: "php/findNearbyWikipedia.php",
                 type: 'POST',
@@ -1068,37 +1063,42 @@ let wikiBtn = L.easyButton({
 
                     if (result.status.name == "ok") {
                         const counts = result.data.length;
-                        // If there are no counts
-                        if (counts == 0) {
 
-                            // Show the No Nearby Wikipedia Articles Message
+                        // If no nearby Wikipedia articles are found
+                        if (counts === 0) {
                             $('#nearbywikinodata').show();
                             $('#nearbywikinodata').html(`No Nearby Wikipedia Articles`);
-
                         } else {
-                            // Build the Table
-                            $('#nearbywikiresults').append(`<caption>${counts} Nearby Wikipedia Articles</caption>`);
+                            // Loop through the articles and append clickable titles
                             for (let idx = 0; idx < counts; idx++) {
                                 let title = result['data'][idx]['title'];
                                 let summary = result['data'][idx]['summary'];
                                 let url = result['data'][idx]['wikipediaUrl'];
-                                $('#nearbywikiresults').append(`<tr><td>${title}</td></tr>`);
-                                $('#nearbywikiresults').append(`<tr><td>${summary}</td></tr>`);
-                                $('#nearbywikiresults').append(`<tr><td class="text-center" id="nearbywikiurl"><a href="https://${url}" target="_blank" title="View Wikipedia Article for ${title}">View Wikipedia Article</a><p></p></td></tr>`);
+
+                                //Title and summary with link
+                                $('#nearbywikiresults').append(`
+                                    <a href="https://${url}" target="_blank" class="list-group-item list-group-item-action" title="View Wikipedia Article for ${title}">
+                                        <strong>${title}</strong>
+                                        <p>${summary}</p>
+                                    </a>
+                                `);
                             }
                         }
-
                     }
                 },
-
                 error: function (jqXHR, textStatus, errorThrown) {
-                    // error code
+                    // Handle error
+                    $('#nearbywikinodata').show();
+                    $('#nearbywikinodata').html('Failed to retrieve nearby Wikipedia articles.');
                 }
             });
+
+            // Show the modal with the Wikipedia results
             $('#wikiModal').modal('show');
         }
     }]
 });
+
 
 // Apply Styling to Wikipedia Button
 wikiBtn.button.style.backgroundColor = '#505050';
