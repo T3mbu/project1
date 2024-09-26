@@ -514,6 +514,9 @@ let infoBtn = L.easyButton({
             updateCountryCodeAndCountryName(latitude, longitude);
 
             // Fetch country information using Geonames API
+            let geonamesDone = false;
+            let openCageDone = false;
+
             $.ajax({
                 url: "php/getCountryInfo.php",
                 type: 'POST',
@@ -536,13 +539,15 @@ let infoBtn = L.easyButton({
                         $("#countrypopulation").html(`<i class="fa-solid fa-user-group"></i> ${largeNumberFormat(countryPopulation)}`);
                         $("#countrycontinent").html(`<i class="fa-solid fa-globe"></i> ${result['data'][0]['continentName']} (${result['data'][0]['continent']})`);
 
-                        // Hide preloader and show the country info table
-                        $('#country-info-preloader').hide();
-                        $('#country-info-table').show();
+                        geonamesDone = true;
+                        if (geonamesDone && openCageDone) {
+                            $('#country-info-preloader').hide();
+                            $('#country-info-table').show(); // Show table after both APIs return results
+                        }
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    // Handle errors for Geonames API and hide preloader
+                    // Handle errors for Geonames API
                     $('#country-info-preloader').hide();
                 }
             });
@@ -553,13 +558,11 @@ let infoBtn = L.easyButton({
                 type: 'POST',
                 dataType: 'JSON',
                 data: {
-                    // Handle special characters for certain countries
                     country: $('#selCountry :selected').text().replaceAll(" ", "%20").replace("Dem.%20Rep.%20Korea", "North%20Korea").replace("Rep.", "Republic").replace("Lao%20PDR", "Laos")
                 },
                 success: function (result) {
                     if (result.status.name == "ok") {
-                        // Filter out results based on component types
-                        const filterData = result.data.results.filter((componentType) => componentType.components._type === "country" || componentType.components._type === "administrative" || (componentType.components._type === "state" && componentType.components.state_code === "PR"));
+                        const filterData = result.data.results.filter((componentType) => componentType.components._type === "country");
 
                         // Update the HTML with additional country data (currency, drive side, etc.)
                         $("#countrycurrency").html(`<i class="fa-solid fa-money-bill-wave"></i> ${filterData[0]['annotations']['currency']['name']}`);
@@ -574,13 +577,20 @@ let infoBtn = L.easyButton({
                         const apparentSunriseDateTime = new Date(apparentSunrise * 1000);
                         const apparentSunsetDateTime = new Date(apparentSunset * 1000);
 
-                        // Update the HTML with sunrise and sunset times and cut off seconds
+                        // Update the HTML with sunrise and sunset times
                         $("#countryapparentsunrise").html(`<i class="fa-solid fa-sun"></i> ${apparentSunriseDateTime.toTimeString().slice(0, 5)}`);
                         $("#countryapparentsunset").html(`<i class="fa-solid fa-moon"></i> ${apparentSunsetDateTime.toTimeString().slice(0, 5)}`);
+
+                        openCageDone = true;
+                        if (geonamesDone && openCageDone) {
+                            $('#country-info-preloader').hide();
+                            $('#country-info-table').show(); // Show table after both APIs return results
+                        }
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     // Handle errors for Open Cage Data API
+                    $('#country-info-preloader').hide();
                 }
             });
 
@@ -608,9 +618,12 @@ let exchangeBtn = L.easyButton({
         title: 'Exchange Information',  // Tooltip for the button
         onClick: function (btn, map) {
             // Clear the exchange rate fields and placeholders for cleaner UI
-            $('#exchangeupdatedon').html(`<p class="loading-text">Loading exchange data...</p>`);
-            $('#exchangefromcurrency').html(`<p class="loading-text">Currency...</p>`);
+            $('#exchangefromcurrency').html(``);
             $('#exchangeresults').html(``);
+
+            // Hide content initially
+            $('#exchange-content').hide();  // Hide content initially
+            $('#exchange-preloader').show();  
 
             // Get the map center to retrieve the latitude and longitude
             const center = map.getCenter();
@@ -631,7 +644,6 @@ let exchangeBtn = L.easyButton({
                     country: $('#selCountry').val() // Use the selected country code
                 },
                 success: function (result) {
-
                     if (result.status.name == "ok") {
                         // Retrieve the currency code
                         selectedCurrencyCode = result['data'][0]['currencyCode'];
@@ -645,17 +657,20 @@ let exchangeBtn = L.easyButton({
                                 base: 'USD' // Base currency is USD
                             },
                             success: function (result) {
-
                                 if (result.status.name == "ok") {
+                                    // Hide the preloader and show the content when data is ready
+                                    $('#exchange-preloader').hide();
+                                    $('#exchange-content').show();
+
                                     // Format and display the last updated time for the exchange rates
                                     let exchangeTimeStamp = result['data']['timestamp'];
                                     let exchangeUpdatedOn = new Date(exchangeTimeStamp * 1000);
                                     $('#exchangeupdatedon').html(`<p>Last Updated: ${exchangeUpdatedOn.toDateString()} - ${exchangeUpdatedOn.toTimeString().slice(0, 5)}</p>`);
 
-                                    // Update the from currency field with some styling
+                                    // Update the from currency field
                                     $("#exchangefromcurrency").html(`<span class="currency-display">${selectedCurrencyCode}</span>`);
 
-                                    // Populate the currency dropdown with available currencies and styled select
+                                    // Populate the currency dropdown with available currencies
                                     $('#selCurrency').html('<option value="" disabled selected>Select Currency</option>');
                                     const currencies = Object.keys(result['data']['rates']);
                                     for (let i = 0; i < currencies.length; i++) {
@@ -671,52 +686,48 @@ let exchangeBtn = L.easyButton({
                                     $('#fromamount').on('keyup', function () {
                                         const amount = $('#fromamount').val();
 
-                                        // Validate the amount input (No limit or specific validation)
                                         if (amount < 1 || !Number.isInteger(Number(amount))) {
-                                            $('#exchangeresults').html(``); // Blank error message
+                                            $('#exchangeresults').html(``);
                                         } else {
                                             calculateResult();
                                         }
                                     });
 
-                                    // Event when the amount field is changed
                                     $('#fromamount').on('change', function () {
                                         calculateResult();
                                     });
 
-                                    // Event when the currency dropdown is changed
                                     $('#selCurrency').on('change', function () {
                                         calculateResult();
                                     });
 
-                                    
-                                    //    Function to calculate and display the exchange result
                                     function calculateResult() {
                                         selectedCurrency = $('#selCurrency :selected').text();
-                                        const fromCurrencyToUSD = 1 / result['data']['rates'][selectedCurrencyCode]; // Get exchange rate for base currency
-                                        const amount = $('#fromamount').val(); // Get the entered amount
-                                        const selectedExchangeRate = result['data']['rates'][selectedCurrency]; // Get the selected exchange rate
-                                        const exchangeResult = fromCurrencyToUSD * amount * selectedExchangeRate; // Calculate the result
+                                        const fromCurrencyToUSD = 1 / result['data']['rates'][selectedCurrencyCode];
+                                        const amount = $('#fromamount').val();
+                                        const selectedExchangeRate = result['data']['rates'][selectedCurrency];
+                                        const exchangeResult = fromCurrencyToUSD * amount * selectedExchangeRate;
 
-                                        // Display the result formatted with two decimal places, styled
+                                        // Display the result
                                         $('#exchangeresults').html(`<h3 class="result-text">${amount} ${selectedCurrencyCode} = ${exchangeResult.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${selectedCurrency}</h3>`);
                                     }
 
-                                    // Event to clear the result when the clear button is clicked
                                     $('#exchangeclear').on('click', function () {
                                         $('#exchangeresults').html(``);
                                     });
                                 }
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
-                                // Handle errors for Open Exchange Rates API
+                                $('#exchange-preloader').hide();
+                                $('#exchange-content').show();
                                 $('#exchangeresults').html('<p class="error-text">Failed to retrieve exchange rates.</p>');
                             }
                         });
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    // Handle errors for Geonames API
+                    $('#exchange-preloader').hide();
+                    $('#exchange-content').show();
                     $('#exchangeresults').html('<p class="error-text">Failed to retrieve country information.</p>');
                 }
             });
@@ -726,6 +737,7 @@ let exchangeBtn = L.easyButton({
         }
     }]
 });
+
 
 
 // Apply enhanced styling to the exchange button
@@ -742,8 +754,8 @@ exchangeBtn.addTo(map);
 let weatherBtn = L.easyButton({
     states: [{
         stateName: 'get-weather-information',
-        icon: 'fa-solid fa-cloud',  // Use the cloud icon for the button
-        title: 'Weather Information',  // Tooltip for the button
+        icon: 'fa-solid fa-cloud',  
+        title: 'Weather Information',  
         onClick: function (btn, map) {
 
             // Show the preloader and hide the weather data content
@@ -755,21 +767,22 @@ let weatherBtn = L.easyButton({
             $('#lastupdated').html(``);
             $('#currentconditions').html(``);
             $('#currenttemp').html(``);
-            $('#currenticon').attr('src', '').attr('title', '').attr('alt', '');  // Clear weather icon
+            // Clear weather icon
+            $('#currenticon').attr('src', '').attr('title', '').attr('alt', '');  
 
             // Clear the forecast fields for the next 3 days
             $('#day0maxtemp').html(``);
             $('#day0mintemp').html(``);
             $('#day0date').html(``);
-            $('#day0icon').attr('src', '').attr('title', '').attr('alt', '');  // Clear day 0 weather icon
+            $('#day0icon').attr('src', '').attr('title', '').attr('alt', '');  
             $('#day1maxtemp').html(``);
             $('#day1mintemp').html(``);
             $('#day1date').html(``);
-            $('#day1icon').attr('src', '').attr('title', '').attr('alt', '');  // Clear day 1 weather icon
+            $('#day1icon').attr('src', '').attr('title', '').attr('alt', '');  
             $('#day2maxtemp').html(``);
             $('#day2mintemp').html(``);
             $('#day2date').html(``);
-            $('#day2icon').attr('src', '').attr('title', '').attr('alt', '');  // Clear day 2 weather icon
+            $('#day2icon').attr('src', '').attr('title', '').attr('alt', '');  
 
             // Hide and clear the weather error message
             $('#weathererror').html(``);
@@ -783,7 +796,8 @@ let weatherBtn = L.easyButton({
             // Update the country code based on the current location (lat, lng)
             updateCountryCodeAndCountryName(latitude, longitude);
 
-            let city;  // Variable to store the city name
+            // Variable to store the city name
+            let city;  
 
             // Fetch the country info to get the capital city
             $.ajax({
@@ -791,7 +805,7 @@ let weatherBtn = L.easyButton({
                 type: 'POST',
                 dataType: 'JSON',
                 data: {
-                    country: $('#selCountry').val() // Use the selected country code
+                    country: $('#selCountry').val() 
                 },
                 success: function (result) {
 
@@ -799,10 +813,12 @@ let weatherBtn = L.easyButton({
 
                         // Get the capital city and encode it for URL use
                         city = result['data'][0]['capital'];
-                        city = city.replaceAll(" ", "%20").replaceAll("'", "%27");  // Replace spaces and special characters
+                        // Replace spaces and special characters
+                        city = city.replaceAll(" ", "%20").replaceAll("'", "%27"); 
 
-                        const countryName = result['data'][0]['countryName']; // Fetch the country name
-                        $("#weatherCityCountry").html(`${countryName}`);  // Set the H1 text to country name
+                        // Fetch the country name
+                        const countryName = result['data'][0]['countryName'];
+                        $("#weatherCityCountry").html(`${countryName}`);  
 
                         // Fetch additional country data from REST Countries API to ensure the capital city is correct
                         $.ajax({
@@ -817,7 +833,7 @@ let weatherBtn = L.easyButton({
                                     // If the capital city is not provided, fallback to REST Countries data
                                     if (city.length == 0) {
                                         city = result['data'][0]['capital'][0];
-                                        city = city.replaceAll(" ", "%20").replaceAll("'", "%27").replaceAll("ú", "%C3%BA");  // Apply encoding for special characters
+                                        city = city.replaceAll(" ", "%20").replaceAll("'", "%27").replaceAll("ú", "%C3%BA");  
                                     }
 
                                     // Fetch weather data for the selected city
@@ -826,7 +842,7 @@ let weatherBtn = L.easyButton({
                                         type: 'POST',
                                         dataType: 'JSON',
                                         data: {
-                                            city: city  // Send the encoded city name
+                                            city: city  
                                         },
                                         success: function (result) {
 
@@ -945,6 +961,10 @@ let nearbyPlacenameBtn = L.easyButton({
         icon: 'fa-location-crosshairs',  // Use the crosshairs icon for the button
         title: 'Nearby Placename',  // Tooltip for the button
         onClick: function (btn, map) {
+            // Show preloader and hide content initially
+            $('#placename-preloader').show();
+            $('#placename-content').hide();
+
             // Clear the nearby place data fields in the UI
             $('#placename').html(``);
             $('#placecounty').html(``);
@@ -1013,10 +1033,21 @@ let nearbyPlacenameBtn = L.easyButton({
                         const apparentSunset = new Date(result['data']['results'][0]['annotations']['sun']['set']['apparent'] * 1000);
                         $("#placeapparentsunrise").html(`<i class="fa-solid fa-sun"></i> ${apparentSunrise.toTimeString().slice(0, 5)}`);
                         $("#placeapparentsunset").html(`<i class="fa-solid fa-moon"></i> ${apparentSunset.toTimeString().slice(0, 5)}`);
+
+                        // Hide preloader and show content
+                        $('#placename-preloader').hide();
+                        $('#placename-content').show();
+                    } else {
+                        // Hide preloader and show content if data is not ok
+                        $('#placename-preloader').hide();
+                        $('#placename-content').show();
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    // Handle errors for Open Cage Data API
+                    // Hide preloader and show content even if there's an error
+                    $('#placename-preloader').hide();
+                    $('#placename-content').show();
+                    // Optionally show an error message here
                 }
             });
 
@@ -1025,6 +1056,7 @@ let nearbyPlacenameBtn = L.easyButton({
         }
     }]
 });
+
 
 // Apply styling to the nearby placename button
 nearbyPlacenameBtn.button.style.backgroundColor = '#BFD641';  // Light green color
@@ -1043,7 +1075,9 @@ let wikiBtn = L.easyButton({
             $('#nearbywikiresults').html(``);
             $('#nearbywikinodata').html(``);
 
-            // Hide Nearby Wikipedia No Data Message
+            // Show preloader and hide content initially
+            $('#wiki-preloader').show();
+            $('#nearbywikiresults').hide();
             $('#nearbywikinodata').hide();
 
             // Get map's current center latitude and longitude
@@ -1088,10 +1122,15 @@ let wikiBtn = L.easyButton({
                                 `);
                             }
                         }
+
+                        // Hide preloader and show the results
+                        $('#wiki-preloader').hide();
+                        $('#nearbywikiresults').show();
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     // Handle error
+                    $('#wiki-preloader').hide();
                     $('#nearbywikinodata').show();
                     $('#nearbywikinodata').html('Failed to retrieve nearby Wikipedia articles.');
                 }
@@ -1116,18 +1155,20 @@ let newsBtn = L.easyButton({
         icon: 'fa-newspaper',
         title: 'News',
         onClick: function (btn, map) {
-            // Clear entries
-            $('#newsresults').html(``);
-            $('#newsnodata').html(``);
-            // Hide News No Data Message
-            $('#newsnodata').hide();
+            // Clear the previous entries and hide the content initially
+            $('#newsresults').html(``).hide();
+            $('#newsnodata').html(``).hide();
+            $('#news-preloader').show(); // Show preloader
+
+            // Get map's current center latitude and longitude
             const center = map.getCenter();
             const latitude = center["lat"];
             const longitude = center["lng"];
-            // Get Updated Country Code based on Latitude and Longitude
+
+            // Update the country code based on latitude and longitude
             updateCountryCodeAndCountryName(latitude, longitude);
 
-            // Fill entries
+            // Fetch the news entries
             $.ajax({
                 url: "php/newsApi.php",
                 type: 'POST',
@@ -1136,27 +1177,26 @@ let newsBtn = L.easyButton({
                     country: $('#selCountry').val()
                 },
                 success: function (result) {
+                    $('#news-preloader').hide(); // Hide preloader
 
                     if (result.status.name == "ok") {
-
-                        // If there are no news articles
-                        if (result['data']['totalResults'] == 0 || result['data']['totalResults'] == undefined) {
-                            $('#newsnodata').show();
-                            $('#newsnodata').html(`No news articles for the selected country`);
+                        // If no news articles are found
+                        if (result['data']['totalResults'] == 0 || result['data']['totalResults'] === undefined) {
+                            $('#newsnodata').show().html(`No news articles for the selected country`);
                         } else {
-                            // Build the Table
-
-                            // Display the First 6 News Results
+                            // Build and display the news articles table
                             for (let idx = 0; idx < 6; idx++) {
                                 let title = result['data']['results'][idx]['title'];
                                 let imageUrl = result['data']['results'][idx]['image_url'] !== null ? result['data']['results'][idx]['image_url'] : "libs/img/breaking-news.jpg";
-                              	// Check for empty image URL after removing whitespace or image URLs not ending with .jpg 
+                              
+                                // Fallback to a default image if the image URL is invalid
                                 if (imageUrl.trim().length == 0 || !imageUrl.endsWith(".jpg")) imageUrl = "libs/img/breaking-news.jpg";
+                                
                                 let imageAlt = imageUrl !== "libs/img/breaking-news.jpg" ? title : "Breaking News";
                                 let sourceID = result['data']['results'][idx]['source_id'];
                                 let link = result['data']['results'][idx]['link'];
 
-                                // Build the news article card with image and details
+                                // Append the news card to the results
                                 $('#newsresults').append(`
                                     <div class="news-item border-bottom mb-3">
                                         <div class="row g-0">
@@ -1173,23 +1213,25 @@ let newsBtn = L.easyButton({
                                     </div>
                                 `);
                             }
+                            // Show the results table after the data is loaded
+                            $('#newsresults').show();
                         }
-
                     } else {
-                        $('#newsnodata').show();
-                        $('#newsnodata').html(`Error retrieving news articles`);
+                        $('#newsnodata').show().html(`Error retrieving news articles`);
                     }
                 },
-
                 error: function (jqXHR, textStatus, errorThrown) {
-                    $('#newsnodata').show();
-                    $('#newsnodata').html(`Error retrieving news articles`);
+                    $('#news-preloader').hide(); // Hide preloader on error
+                    $('#newsnodata').show().html(`Error retrieving news articles`);
                 }
             });
+
+            // Show the modal for news
             $('#newsModal').modal('show');
         }
     }]
 });
+
 
 
 // Apply Styling to News Button

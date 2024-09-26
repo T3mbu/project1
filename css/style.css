@@ -1,17 +1,12 @@
-/* Apply Font */
-body {
+/* Global Styles */
+body, html {
     font-family: sans-serif;
-}
-
-/* Prepare Map Page */
-html,
-body {
     padding: 0;
     margin: 0;
 }
 
+/* Map */
 #map {
-    font-family: inherit;
     height: 100vh;
     width: 100%;
     margin: 0;
@@ -27,96 +22,78 @@ body {
     padding: 11px 0;
 }
 
-/* Select Country */
 #selCountry {
     width: 200px;
     margin: 0 auto;
 }
 
-/* Country Information Links */
-#countryname a {
+/* Link Styles for Country Info and Wikipedia */
+#countryname a, #countrycapital a, #wikipedia a, #citywikipedia a {
     text-decoration: none;
-    color: #d2386c;
 }
 
-#countryname a:hover {
-    text-decoration: none;
-    color: #00008b;
-}
+#countryname a { color: #d2386c; }
+#countrycapital a { color: #006b54; }
+#wikipedia a { color: #00A170; }
+#citywikipedia a { color: #009B77; }
 
-#countrycapital a {
-    text-decoration: none;
-    color: #006b54;
-}
+/* Hover States */
+#countryname a:hover, #citywikipedia a:hover { color: #00008b; }
+#countrycapital a:hover { color: #6c244c; }
+#wikipedia a:hover { color: #9a8b4f; }
 
-#countrycapital a:hover {
-    text-decoration: none;
-    color: #6c244c;
-}
-
-/* Wikipedia (Map) */
-#wikipedia a {
-    text-decoration: none;
-    color: #00A170;
-}
-
-#wikipedia a:hover {
-    text-decoration: none;
-    color: #9a8b4f;
-}
-
-/* City Wikipedia (Map) */
-#citywikipedia a {
-    text-decoration: none;
-    color: #009B77;
-}
-
-#citywikipedia a:hover {
-    text-decoration: none;
-    color: #d2386c;
-}
-
-/* country info preloader */
-#country-info-preloader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100px;
-}
-
+/* Preloader Styles (Grouped) */
 .spinner-border {
     width: 3rem;
     height: 3rem;
-    color: #56829e; 
+    color: #56829e;
 }
 
+#country-info-preloader, #weather-preloader, #placename-preloader, #wiki-preloader, #news-preloader, #exchange-preloader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 1000;
+}
 
+#exchange-preloader {
+    height: 50%; /* Different height for exchange modal */
+}
 
-/* Add color to the h1 in the modal header */
-#weatherModal .modal-header h1 {
+/* Modal Styles */
+.modal-header {
+    background-color: #d9534f;
     color: white;
+}
+
+.modal-header h1, .modal-title {
     font-weight: bold;
 }
 
-
-
-.forecast-box {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin: 5px;
-    background-color: #f9f9f9;
+.modal-body {
+    height: 400px;
+    overflow-y: auto;
+    position: relative;
 }
 
-.forecast-box p {
-    margin: 0;
+.modal-content {
+    min-height: 500px;
+    max-height: 500px;
+    overflow: hidden;
 }
 
-#lastUpdated {
-    font-size: 0.8rem; 
+/* Hide Content Until Loaded */
+#country-info-table, .weather-content, #placename-content, #nearbywikiresults, #newsresults, #exchange-content {
+    display: none;
 }
 
-/* news */
+/* News Styling */
 .news-item {
     display: flex;
     align-items: center;
@@ -141,31 +118,14 @@ body {
     object-fit: cover;
 }
 
-.modal-header {
-    background-color: #d9534f; 
-    color: white;
-}
-
-.modal-title {
+#newsnodata {
+    text-align: center;
+    color: red;
     font-weight: bold;
+    margin-top: 20px;
 }
 
-
-/* Preloader */
-#preloader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9999;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
+/* Preloader Animation */
 #preloader::before {
     content: "";
     border: 6px solid #f2f2f2;
@@ -173,35 +133,15 @@ body {
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    -webkit-animation: animate-preloader 1s linear infinite;
     animation: animate-preloader 1s linear infinite;
 }
 
-@-webkit-keyframes animate-preloader {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
-}
-
 @keyframes animate-preloader {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-/* Hide the map until the first country renders */
+/* Hide Map Initially */
 body.loading #map {
     visibility: hidden;
 }

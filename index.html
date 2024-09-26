@@ -49,7 +49,7 @@
                 </div>
 
                 <!-- Country Info Table -->
-                <table class="table table-striped" id="country-info-table" style="display:none;">
+                <table class="table table-striped" id="country-info-table">
                     <tr>
                         <td class="text-nowrap">Name</td>
                         <td id="countryname" class="text-end"></td>
@@ -103,7 +103,6 @@
     </div>
 </section>
 
-
 <!-- Modal for Exchange Information -->
 <section class="modal fade" id="exchangeModal" tabindex="-1" aria-labelledby="exchangeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -113,31 +112,38 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-striped">
-                    <tr>
-                        <td>From</td>
-                        <td id="exchangefromcurrency"></td>
-                    </tr>
+                <!-- Preloader for Exchange Information -->
+                <div id="exchange-preloader" style="display: none;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
 
-                    <tr>
-                        <td>Amount</td>
-                        <td>
-                            <input type="number" id="fromamount" name="fromamount" min="1" value="1" step="1" class="form-control" />
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>Convert to</td>
-                        <td>
-                            <select id="selCurrency" class="form-select"></select>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>Result</td>
-                        <td id="exchangeresults"></td>
-                    </tr>
-                </table>
+                <!-- Exchange Information Content -->
+                <div id="exchange-content" style="display: none;">
+                    <table class="table table-striped">
+                        <tr>
+                            <td>From</td>
+                            <td id="exchangefromcurrency"></td>
+                        </tr>
+                        <tr>
+                            <td>Amount</td>
+                            <td>
+                                <input type="number" id="fromamount" name="fromamount" min="1" value="1" step="1" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Convert to</td>
+                            <td>
+                                <select id="selCurrency" class="form-select"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Result</td>
+                            <td id="exchangeresults"></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -244,62 +250,71 @@
 </section>
 
 
- <!-- Modal for Find Nearby Placename -->
-<section class="modal fade" id="placenameModal" tabindex="-1" aria-labelledby="placenameModalLabel"
-aria-hidden="true">
+<!-- Modal for Find Nearby Placename -->
+<section class="modal fade" id="placenameModal" tabindex="-1" aria-labelledby="placenameModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="placenameModalLabel">Nearby Placename</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Preloader for Nearby Placename -->
+                <div id="placename-preloader" style="display: none; text-align: center;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
 
-<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="placenameModalLabel">Nearby Placename</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <table class="table table-striped">
-                <tr>
-                    <td class="text-nowrap">Place Name</td>
-                    <td id="placename" class="text-end" name="placename"></td>
-                </tr>
-                <tr class="placecountyrow">
-                    <td class="text-nowrap">County</td>
-                    <td id="placecounty" class="text-end" name="placecounty"></td>
-                </tr>
-                <tr>
-                    <td class="text-nowrap">State</td>
-                    <td id="placestate" class="text-end" name="placestate"></td>
-                </tr>
-                <tr>
-                    <td class="text-nowrap">Country</td>
-                    <td id="placecountry" class="text-end" name="placecountry"></td>
-                </tr>
-                <tr>
-                    <td class="text-nowrap">Formatted</td>
-                    <td id="placeformatted" class="text-end" name="placeformatted"></td>
-                </tr>
-                <tr>
-                    <td class="text-nowrap">What 3 Words</td>
-                    <td id="placewhatthreewords" class="text-end" name="placewhatthreewords"></td>
-                </tr>
-                <tr>
-                    <td class="text-nowrap">Apparent Sunrise</td>
-                    <td id="placeapparentsunrise" class="text-end" name="placeapparentsunrise"></td>
-                </tr>
-                <tr>
-                    <td class="text-nowrap">Apparent Sunset</td>
-                    <td id="placeapparentsunset" class="text-end" name="placeapparentsunset"></td>
-                </tr>
-            </table>
-        </div>
+                <!-- Placename Info Table (Initially hidden) -->
+                <div id="placename-content" style="display: none;">
+                    <table class="table table-striped">
+                        <tr>
+                            <td class="text-nowrap">Place Name</td>
+                            <td id="placename" class="text-end" name="placename"></td>
+                        </tr>
+                        <tr class="placecountyrow">
+                            <td class="text-nowrap">County</td>
+                            <td id="placecounty" class="text-end" name="placecounty"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">State</td>
+                            <td id="placestate" class="text-end" name="placestate"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">Country</td>
+                            <td id="placecountry" class="text-end" name="placecountry"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">Formatted</td>
+                            <td id="placeformatted" class="text-end" name="placeformatted"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">What 3 Words</td>
+                            <td id="placewhatthreewords" class="text-end" name="placewhatthreewords"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">Apparent Sunrise</td>
+                            <td id="placeapparentsunrise" class="text-end" name="placeapparentsunrise"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">Apparent Sunset</td>
+                            <td id="placeapparentsunset" class="text-end" name="placeapparentsunset"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
 
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
-</div>
 </section>
 
 
-    <!-- Modal for Nearby Wikipedia -->
+
+<!-- Modal for Nearby Wikipedia -->
 <section class="modal fade" id="wikiModal" tabindex="-1" aria-labelledby="wikiModalLabel" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -309,6 +324,13 @@ aria-hidden="true">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Preloader for Wikipedia Modal -->
+                <div id="wiki-preloader" style="display: none;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
                 <!-- Wikipedia Articles List -->
                 <div id="nearbywikiresults" class="list-group">
                     <!-- Dynamic Wikipedia content will be injected here -->
@@ -328,8 +350,8 @@ aria-hidden="true">
 
 
     
-   <!-- Modal for News Information -->
-   <section class="modal fade" id="newsModal" tabindex="-1" aria-labelledby="newsModalLabel" aria-hidden="true">
+<!-- Modal for News Information -->
+<section class="modal fade" id="newsModal" tabindex="-1" aria-labelledby="newsModalLabel" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
@@ -338,14 +360,22 @@ aria-hidden="true">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table" id="newsresults">
+
+                <!-- Preloader for News -->
+                <div id="news-preloader" style="display: none;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <!-- News Results Table -->
+                <table class="table" id="newsresults" style="display:none;">
                 </table>
 
-                <!-- Set Up Any No Data Messages -->
-                <div id="newsnodata"></div>
+                <!-- No Data Message -->
+                <div id="newsnodata" style="display: none;"></div>
+
             </div>
-
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
@@ -354,8 +384,6 @@ aria-hidden="true">
 
 </section>
 
-
-  
     <!-- Display Map -->
     <div id="map"></div>
 
