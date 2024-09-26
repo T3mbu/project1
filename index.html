@@ -31,10 +31,6 @@
         <select id="selCountry" name="selCountry" class="form-select shadow-sm"></select>
     </span>
 
-    <!-- Add Randomizer Button
-    <button id="randomizerBtn" class="btn">
-        <i class="fa fa-question"></i>
-    </button> -->
 
 <!-- Modal for Country Information -->
 <section class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -248,62 +244,59 @@
 </section>
 
 
-    <!-- Modal for Find Nearby Placename -->
-    <section class="modal fade" id="placenameModal" tabindex="-1" aria-labelledby="placenameModalLabel"
-        aria-hidden="true">
+ <!-- Modal for Find Nearby Placename -->
+<section class="modal fade" id="placenameModal" tabindex="-1" aria-labelledby="placenameModalLabel"
+aria-hidden="true">
 
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="placenameModalLabel">Nearby Placename
-                    </h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-striped">
-                        <tr>
-                            <td>Place Name</td>
-                            <td id="placename" name = "placename"></td>
-                        </tr>
-                        <tr class="placecountyrow">
-                            <td>County</td>
-                            <td id="placecounty" name= = "placecountry"></td>
-                        </tr>
-                        <tr>
-                            <td>State</td>
-                            <td id="placestate" name = "placestate"></td>
-                        </tr>
-                        <tr>
-                            <td>Country</td>
-                            <td id="placecountry" name = "placecountry"></td>
-                        </tr>
-                        <tr>
-                            <td>Formatted</td>
-                            <td id="placeformatted" name = "placeformatted"></td>
-                        </tr>
-                        <tr>
-                            <td>What 3 Words</td>
-                            <td id="placewhatthreewords" name = "placewhatthreewords"></td>
-                        </tr>
-                        <tr>
-                            <td>Apparent Sunrise</td>
-                            <td id="placeapparentsunrise" name = "placeapparentsunrise"></td>
-                        </tr>
-                        <tr>
-                            <td>Apparent Sunset</td>
-                            <td id="placeapparentsunset" name = "placeapparentsunset"></td>
-                        </tr>
-
-                    </table>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="placenameModalLabel">Nearby Placename</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-striped">
+                <tr>
+                    <td class="text-nowrap">Place Name</td>
+                    <td id="placename" class="text-end" name="placename"></td>
+                </tr>
+                <tr class="placecountyrow">
+                    <td class="text-nowrap">County</td>
+                    <td id="placecounty" class="text-end" name="placecounty"></td>
+                </tr>
+                <tr>
+                    <td class="text-nowrap">State</td>
+                    <td id="placestate" class="text-end" name="placestate"></td>
+                </tr>
+                <tr>
+                    <td class="text-nowrap">Country</td>
+                    <td id="placecountry" class="text-end" name="placecountry"></td>
+                </tr>
+                <tr>
+                    <td class="text-nowrap">Formatted</td>
+                    <td id="placeformatted" class="text-end" name="placeformatted"></td>
+                </tr>
+                <tr>
+                    <td class="text-nowrap">What 3 Words</td>
+                    <td id="placewhatthreewords" class="text-end" name="placewhatthreewords"></td>
+                </tr>
+                <tr>
+                    <td class="text-nowrap">Apparent Sunrise</td>
+                    <td id="placeapparentsunrise" class="text-end" name="placeapparentsunrise"></td>
+                </tr>
+                <tr>
+                    <td class="text-nowrap">Apparent Sunset</td>
+                    <td id="placeapparentsunset" class="text-end" name="placeapparentsunset"></td>
+                </tr>
+            </table>
         </div>
 
-    </section>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+</section>
 
 
     <!-- Modal for Nearby Wikipedia -->

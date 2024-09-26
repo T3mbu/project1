@@ -299,7 +299,7 @@ $.ajax({
                         // Define the icon style for Wikipedia markers
                         const databaseIcon = L.ExtraMarkers.icon({
                             prefix: 'fa',
-                            icon: 'fa-database',
+                            icon: 'fa-brands fa-wikipedia-w',
                             iconColor: 'white',
                             svg: true,
                             markerColor: '#0072B5',
@@ -361,7 +361,7 @@ $.ajax({
                         // Define the icon style for weather observation markers
                         const theWeatherIcon = L.ExtraMarkers.icon({
                             prefix: 'fa',
-                            icon: 'fa-umbrella',
+                            icon: 'fa-cloud',
                             iconColor: 'white',
                             svg: true,
                             markerColor: '#6B5B95',
@@ -1200,9 +1200,9 @@ newsBtn.addTo(map);
 
 let randomizerBtn = L.easyButton({
     states: [{
-        stateName: 'randomize-country',  // State name for the button
-        icon: 'fa-solid fa-question',    // Use the question mark icon for the button
-        title: 'Random Country',         // Tooltip for the button
+        stateName: 'randomize-country',  
+        icon: 'fa-solid fa-question',    
+        title: 'Random Country',         
         onClick: function (btn, map) {
             // Select a random country and trigger the change event
             selectRandomCountry();
@@ -1211,7 +1211,7 @@ let randomizerBtn = L.easyButton({
 });
 
 // Apply styling to the randomizer button
-randomizerBtn.button.style.backgroundColor = '#FFC0CB';  // Pink background color
+randomizerBtn.button.style.backgroundColor = '#FFC0CB'; 
 
 // Add the randomizer button to the map
 randomizerBtn.addTo(map);
