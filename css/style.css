@@ -94,7 +94,7 @@ body {
 
 /* Add color to the h1 in the modal header */
 #weatherModal .modal-header h1 {
-    color: #075070; 
+    color: white;
     font-weight: bold;
 }
 
@@ -114,6 +114,40 @@ body {
 
 #lastUpdated {
     font-size: 0.8rem; 
+}
+
+/* news */
+.news-item {
+    display: flex;
+    align-items: center;
+}
+
+.news-title {
+    font-weight: bold;
+    text-decoration: none;
+    color: #007BFF;
+}
+
+.news-title:hover {
+    text-decoration: underline;
+}
+
+.news-source {
+    color: #6c757d;
+}
+
+.news-image {
+    max-height: 80px;
+    object-fit: cover;
+}
+
+.modal-header {
+    background-color: #d9534f; 
+    color: white;
+}
+
+.modal-title {
+    font-weight: bold;
 }
 
 

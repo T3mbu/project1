@@ -801,6 +801,9 @@ let weatherBtn = L.easyButton({
                         city = result['data'][0]['capital'];
                         city = city.replaceAll(" ", "%20").replaceAll("'", "%27");  // Replace spaces and special characters
 
+                        const countryName = result['data'][0]['countryName']; // Fetch the country name
+                        $("#weatherCityCountry").html(`${countryName}`);  // Set the H1 text to country name
+
                         // Fetch additional country data from REST Countries API to ensure the capital city is correct
                         $.ajax({
                             url: "php/restCountries.php",
@@ -924,6 +927,7 @@ let weatherBtn = L.easyButton({
         }
     }]
 });
+
 
 
 
@@ -1106,7 +1110,6 @@ wikiBtn.button.style.backgroundColor = '#505050';
 // Add Wikipedia Button to Map
 wikiBtn.addTo(map);
 
-
 let newsBtn = L.easyButton({
     states: [{
         stateName: 'get-news',
@@ -1136,34 +1139,39 @@ let newsBtn = L.easyButton({
 
                     if (result.status.name == "ok") {
 
-                        // If there are no counts
+                        // If there are no news articles
                         if (result['data']['totalResults'] == 0 || result['data']['totalResults'] == undefined) {
                             $('#newsnodata').show();
-                            $('#newsnodata').html(`No news articles for selected country`);
+                            $('#newsnodata').html(`No news articles for the selected country`);
                         } else {
                             // Build the Table
 
                             // Display the First 6 News Results
                             for (let idx = 0; idx < 6; idx++) {
                                 let title = result['data']['results'][idx]['title'];
-                                let imageUrl = result['data']['results'][idx]['image_url'] !== null ? result['data']['results'][idx]['image_url'] : "breakingnews.jpg";
+                                let imageUrl = result['data']['results'][idx]['image_url'] !== null ? result['data']['results'][idx]['image_url'] : "libs/img/breaking-news.jpg";
                               	// Check for empty image URL after removing whitespace or image URLs not ending with .jpg 
-                                if (imageUrl.trim().length == 0 || !imageUrl.endsWith(".jpg")) imageUrl = "breakingnews.jpg";
-                                let imageAlt = imageUrl !== "breakingnews.jpg" ? title : "Breaking News";
+                                if (imageUrl.trim().length == 0 || !imageUrl.endsWith(".jpg")) imageUrl = "libs/img/breaking-news.jpg";
+                                let imageAlt = imageUrl !== "libs/img/breaking-news.jpg" ? title : "Breaking News";
                                 let sourceID = result['data']['results'][idx]['source_id'];
                                 let link = result['data']['results'][idx]['link'];
 
-                                // Build table for news article
-                                $('#newsresults').append(`<tr>`);
-                                $('#newsresults').append(`<td id="newslink"><a href="${link}" target="_blank" title="View News Article">${title}</a></td>`);
-                                $('#newsresults').append(`<td rowspan="2" class="w-50"><img class="img-fluid rounded" src="${imageUrl}" alt="${imageAlt}" title="${imageAlt}"></td>`);
-                                $('#newsresults').append(`</tr>`);
-                                $('#newsresults').append(`<tr>`);
-                                $('#newsresults').append(`<td class="align-bottom pb-0">`);
-                                $('#newsresults').append(`<p class="fs-6 mb-1">${sourceID}</p>`);
-                                $('#newsresults').append(`</td></tr>`);
-                                $('#newsresults').append(`<tr><td colspan="2"><p class="border-bottom border-dark"></p></td></tr>`);
-
+                                // Build the news article card with image and details
+                                $('#newsresults').append(`
+                                    <div class="news-item border-bottom mb-3">
+                                        <div class="row g-0">
+                                            <div class="col-md-4">
+                                                <img src="${imageUrl}" class="img-fluid rounded-start news-image" alt="${imageAlt}" title="${imageAlt}" onerror="this.onerror=null;this.src='libs/img/breaking-news.jpg';">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="card-body">
+                                                    <a href="${link}" target="_blank" class="card-title news-title">${title}</a>
+                                                    <p class="card-text news-source">${sourceID}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
                             }
                         }
 
@@ -1176,13 +1184,13 @@ let newsBtn = L.easyButton({
                 error: function (jqXHR, textStatus, errorThrown) {
                     $('#newsnodata').show();
                     $('#newsnodata').html(`Error retrieving news articles`);
-                    // error code
                 }
             });
             $('#newsModal').modal('show');
         }
     }]
 });
+
 
 // Apply Styling to News Button
 newsBtn.button.style.backgroundColor = '#FFFFFF';

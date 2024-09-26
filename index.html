@@ -31,10 +31,10 @@
         <select id="selCountry" name="selCountry" class="form-select shadow-sm"></select>
     </span>
 
-    <!-- Add Randomizer Button -->
+    <!-- Add Randomizer Button
     <button id="randomizerBtn" class="btn">
         <i class="fa fa-question"></i>
-    </button>
+    </button> -->
 
 <!-- Modal for Country Information -->
 <section class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
@@ -157,7 +157,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <!-- Update title dynamically to show city and country -->
-                <h1 class="modal-title fs-5" id="weatherCityCountry">London, United Kingdom</h1>
+                <h1 class="modal-title fs-5" id="weatherCityCountry"></h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -172,10 +172,8 @@
                 <!-- Set Up Weather Card -->
                 <div class="card border border-0">
                     <div class="card-body">
-                        <!-- Set Up Title and Subtitle with Current Temperature -->
                         <div class="row">
-                            <!-- Removed weathertzid -->
-                            <!-- Simplified "Last Updated" to only show the date -->
+
                             <p><span id="lastupdated"></span></p>
                             <p class="display-4" id="currenttemp"></p>
                         </div>
